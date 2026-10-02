@@ -1,0 +1,1195 @@
+// 3DP Project File
+
+header
+{
+    version 1
+    poly_collision_lod 0
+}
+
+materials
+{
+    nummaterials 5
+    material 0
+    {
+        name             "Material_0_VS_PHONGT"
+        shadertag        "VS_PHONGT"
+        rattrib          0
+        pattrib          0
+        ptype            9
+        geofx            0
+        geofx_value       0.00
+        alphatestvalue   0
+        diffusetex[0]    "rpk74d.tga"  0
+        diffusetex[1]    ""  0
+        normaltex[0]     "flat_n.tga"  0
+        normaltex[1]     "0"  0
+        anim_frames      0
+        anim_type        0
+        anim_frametime   0
+        anim_ctrlreg     ""
+        reflect_rgb    0 0 0
+        rgbgen_style    0
+        rgbgen_rate     0.000000
+        rgbgen_phase    0.000000
+        rgbgen_srgb     0 0 0
+        rgbgen_ergb     0 0 0
+        rgbgen_ctrlreg  
+        alphagen_style   0
+        alphagen_rate    0.000000
+        alphagen_phase   0.000000
+        alphagen_start   0
+        alphagen_end     0
+        alphagen_ctrlreg 
+        mapfunc_u_style   0
+        mapfunc_u_rate    0.000000
+        mapfunc_u_phase   0.000000
+        mapfunc_u_start   0.000000
+        mapfunc_u_end     0.000000
+        mapfunc_u_ctrlreg 
+        mapfunc_v_style   0
+        mapfunc_v_rate    0.000000
+        mapfunc_v_phase   0.000000
+        mapfunc_v_start   0.000000
+        mapfunc_v_end     0.000000
+        mapfunc_v_ctrlreg 
+    }
+    material 1
+    {
+        name             "Material_1_VS_PHONGT"
+        shadertag        "VS_PHONGT"
+        rattrib          0
+        pattrib          0
+        ptype            9
+        geofx            0
+        geofx_value       0.00
+        alphatestvalue   0
+        diffusetex[0]    "AKRail.tga"  0
+        diffusetex[1]    ""  0
+        normaltex[0]     "flat_n.tga"  0
+        normaltex[1]     "0"  0
+        anim_frames      0
+        anim_type        0
+        anim_frametime   0
+        anim_ctrlreg     ""
+        reflect_rgb    0 0 0
+        rgbgen_style    0
+        rgbgen_rate     0.000000
+        rgbgen_phase    0.000000
+        rgbgen_srgb     0 0 0
+        rgbgen_ergb     0 0 0
+        rgbgen_ctrlreg  
+        alphagen_style   0
+        alphagen_rate    0.000000
+        alphagen_phase   0.000000
+        alphagen_start   0
+        alphagen_end     0
+        alphagen_ctrlreg 
+        mapfunc_u_style   0
+        mapfunc_u_rate    0.000000
+        mapfunc_u_phase   0.000000
+        mapfunc_u_start   0.000000
+        mapfunc_u_end     0.000000
+        mapfunc_u_ctrlreg 
+        mapfunc_v_style   0
+        mapfunc_v_rate    0.000000
+        mapfunc_v_phase   0.000000
+        mapfunc_v_start   0.000000
+        mapfunc_v_end     0.000000
+        mapfunc_v_ctrlreg 
+    }
+    material 2
+    {
+        name             "Material_2_VS_PHONGT"
+        shadertag        "VS_PHONGT"
+        rattrib          0
+        pattrib          0
+        ptype            9
+        geofx            0
+        geofx_value       0.00
+        alphatestvalue   0
+        diffusetex[0]    "pk_as_d.tga"  0
+        diffusetex[1]    ""  0
+        normaltex[0]     "flat_n.tga"  0
+        normaltex[1]     "0"  0
+        anim_frames      0
+        anim_type        0
+        anim_frametime   0
+        anim_ctrlreg     ""
+        reflect_rgb    0 0 0
+        rgbgen_style    0
+        rgbgen_rate     0.000000
+        rgbgen_phase    0.000000
+        rgbgen_srgb     0 0 0
+        rgbgen_ergb     0 0 0
+        rgbgen_ctrlreg  
+        alphagen_style   0
+        alphagen_rate    0.000000
+        alphagen_phase   0.000000
+        alphagen_start   0
+        alphagen_end     0
+        alphagen_ctrlreg 
+        mapfunc_u_style   0
+        mapfunc_u_rate    0.000000
+        mapfunc_u_phase   0.000000
+        mapfunc_u_start   0.000000
+        mapfunc_u_end     0.000000
+        mapfunc_u_ctrlreg 
+        mapfunc_v_style   0
+        mapfunc_v_rate    0.000000
+        mapfunc_v_phase   0.000000
+        mapfunc_v_start   0.000000
+        mapfunc_v_end     0.000000
+        mapfunc_v_ctrlreg 
+    }
+    material 3
+    {
+        name             "Material_3_VS_BMTXMIRRT"
+        shadertag        "VS_BMTXMIRRT"
+        rattrib          0
+        pattrib          0
+        ptype            9
+        geofx            0
+        geofx_value       0.00
+        alphatestvalue   0
+        diffusetex[0]    "Lens4.tga"  0
+        diffusetex[1]    ""  0
+        normaltex[0]     "Lens1A.TGA"  0
+        normaltex[1]     "0"  0
+        anim_frames      0
+        anim_type        0
+        anim_frametime   0
+        anim_ctrlreg     ""
+        reflect_rgb    255 255 255
+        rgbgen_style    0
+        rgbgen_rate     0.000000
+        rgbgen_phase    0.000000
+        rgbgen_srgb     0 0 0
+        rgbgen_ergb     0 0 0
+        rgbgen_ctrlreg  
+        alphagen_style   0
+        alphagen_rate    0.000000
+        alphagen_phase   0.000000
+        alphagen_start   0
+        alphagen_end     0
+        alphagen_ctrlreg 
+        mapfunc_u_style   0
+        mapfunc_u_rate    0.000000
+        mapfunc_u_phase   0.000000
+        mapfunc_u_start   0.000000
+        mapfunc_u_end     0.000000
+        mapfunc_u_ctrlreg 
+        mapfunc_v_style   0
+        mapfunc_v_rate    0.000000
+        mapfunc_v_phase   0.000000
+        mapfunc_v_start   0.000000
+        mapfunc_v_end     0.000000
+        mapfunc_v_ctrlreg 
+    }
+    material 4
+    {
+        name             "Material_4_VS_PHONGT"
+        shadertag        "VS_PHONGT"
+        rattrib          0
+        pattrib          0
+        ptype            9
+        geofx            0
+        geofx_value       0.00
+        alphatestvalue   0
+        diffusetex[0]    "Bullet2.tga"  0
+        diffusetex[1]    ""  0
+        normaltex[0]     "flat_n.tga"  0
+        normaltex[1]     "0"  0
+        anim_frames      0
+        anim_type        0
+        anim_frametime   0
+        anim_ctrlreg     ""
+        reflect_rgb    0 0 0
+        rgbgen_style    0
+        rgbgen_rate     0.000000
+        rgbgen_phase    0.000000
+        rgbgen_srgb     0 0 0
+        rgbgen_ergb     0 0 0
+        rgbgen_ctrlreg  
+        alphagen_style   0
+        alphagen_rate    0.000000
+        alphagen_phase   0.000000
+        alphagen_start   0
+        alphagen_end     0
+        alphagen_ctrlreg 
+        mapfunc_u_style   0
+        mapfunc_u_rate    0.000000
+        mapfunc_u_phase   0.000000
+        mapfunc_u_start   0.000000
+        mapfunc_u_end     0.000000
+        mapfunc_u_ctrlreg 
+        mapfunc_v_style   0
+        mapfunc_v_rate    0.000000
+        mapfunc_v_phase   0.000000
+        mapfunc_v_start   0.000000
+        mapfunc_v_end     0.000000
+        mapfunc_v_ctrlreg 
+    }
+}
+
+lod 0
+{
+    scenename        AKMPK1st.ase
+    attributes       1
+    render_function  gnrc
+    threshold        0.000
+    partanimation
+    {
+        enablepartanim   0
+        numpartanim      45
+        subobject 0
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     0
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 1
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     1
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 2
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     2
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 3
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     3
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 4
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     4
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 5
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     5
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 6
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     6
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 7
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     7
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 8
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     8
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 9
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as     9
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 10
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    10
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 11
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    11
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 12
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    12
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 13
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    13
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 14
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    14
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 15
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    15
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 16
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    16
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 17
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    17
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 18
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    18
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 19
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    19
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 20
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    20
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 21
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    21
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 22
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    22
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 23
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    23
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 24
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    24
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 25
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    25
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 26
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    26
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 27
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    27
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 28
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    28
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 29
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    29
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 30
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    30
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 31
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    31
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 32
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    32
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 33
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    33
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 34
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    34
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 35
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    35
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 36
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    36
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 37
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    37
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 38
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    38
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 39
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    39
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 40
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    40
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 41
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    41
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 42
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    42
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 43
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    43
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+        subobject 44
+        {
+            rotate_type      0
+            scale_type       0
+            trans_type       0
+            transform_as    44
+            yaw_rate         0.000
+            pitch_rate       0.000
+            roll_rate        0.000
+            yaw_func         0  0.000 0.000 0.000 0.000 
+            pitch_func       0  0.000 0.000 0.000 0.000 
+            roll_func        0  0.000 0.000 0.000 0.000 
+            reverserotate    0
+            scale_func       0  0.000 0.000 0.000 0.000 
+            scalex_func      0  0.000 0.000 0.000 0.000 
+            scaley_func      0  0.000 0.000 0.000 0.000 
+            scalez_func      0  0.000 0.000 0.000 0.000 
+            transx_func      0  0.000 0.000 0.000 0.000 
+            transy_func      0  0.000 0.000 0.000 0.000 
+            transz_func      0  0.000 0.000 0.000 0.000 
+        }
+    }
+    lightsources
+    {
+        numlights 0
+    }
+}
+
