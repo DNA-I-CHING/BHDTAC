@@ -1941,7 +1941,7 @@ weapon "WPN_M24"
 
 	round_type		"AMMO_M24_762HPBT"
 	clipsize		6
-	startrounds		180
+	startrounds		120
 	error_hip	.5 
 	error_up  	.008
 	targetpitchmax  85				
@@ -2061,7 +2061,7 @@ weapon "WPN_W300" //L115A
 
 	round_type		"AMMO_WINCHESTER300_300MAG"
 	clipsize		10
-	startrounds		180
+	startrounds		130
 	error_hip	.5
 	error_up  	.008
 	targetpitchmax  85				
@@ -3275,7 +3275,7 @@ weapon "WPN_PSG1" //SVD
 
 	round_type		"AMMO_DRAGUNOV_mm"
 	clipsize		10
-	startrounds		200
+	startrounds		180
 	error_hip	.5 
 	error_up  	.013
 	targetpitchmax  85				
