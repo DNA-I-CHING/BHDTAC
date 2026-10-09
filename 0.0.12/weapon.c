@@ -213,7 +213,7 @@ weapon "WPN_colt45"
 	end
 
 	action "reload"
-		delaystart			90
+		delaystart			50
 		delayend				auto
 		soundset			GF_BERETTA_RL
 		anim				anim_wpn_reload
@@ -332,7 +332,7 @@ weapon "WPN_M9Beretta"
 	end
 
 	action "reload"
-		delaystart			100
+		delaystart			50
 		delayend				auto
 		soundset			GF_BERETTA_RL
 		anim				anim_wpn_reload
