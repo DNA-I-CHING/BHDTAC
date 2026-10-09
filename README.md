@@ -5,6 +5,9 @@
 - Added Saiga-12 third-person model
 - Adjusted Saiga-12's damage
 
+0.0.12
+- Adjusted weapons' damage for balance
+
 Credits
 - Oscarmike247(JOTAC weapons' models)
 - Biggy(Opennova Blender plugin) https://github.com/opennova-net/opennova
