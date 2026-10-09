@@ -2201,8 +2201,8 @@ ammo AMMO_MP5_9MM
 	drag  1
 	recoil		3
 	scar_type 1
-	frndlyTrcrID 4405
-	foeTrcrID	 4406
+	/frndlyTrcrID 4405
+	/foeTrcrID	 4406
 	Mf_Light 100
     flag muzzle1  
 	flag silenced
