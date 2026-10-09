@@ -3750,7 +3750,7 @@ ammo 50CAL
 
 	impact_damage 300
 
-    impact_AI_damage 20
+    impact_AI_damage 40
     kz_AI_damage    0 
 
 	effects_table
