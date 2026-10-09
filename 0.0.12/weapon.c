@@ -1823,8 +1823,8 @@ weapon "WPN_M21"
 	round_type		"AMMO_M21_762HPBT"
 	clipsize		20
 	startrounds		200
-	error_hip	.6 
-	error_up  	.013 
+	error_hip	.1
+	error_up  	.025
 	targetpitchmax  85				
 	targetpitchmin  85				
 	targetyawrange  120				
@@ -1865,7 +1865,7 @@ weapon "WPN_M21"
 	end	
 
 	action "fire"
-		delayend				8
+		delayend				6
 		soundsetend			GS_M21
 		anim				anim_wpn_fire
 		function			wpn_std_fire
@@ -2299,8 +2299,8 @@ weapon "WPN_M249SAW"
 	round_type		"AMMO_SAW_556MM"
 	clipsize		200
 	startrounds		600
-	error_hip	1.6 
-	error_up  	.033
+	error_hip	2.0 
+	error_up  	.3
 	targetpitchmax  22				
 	targetpitchmin  50				
 	targetyawrange  120				
@@ -2419,8 +2419,8 @@ weapon "WPN_M60"
 	round_type		"AMMO_M60_762MM"
 	clipsize		100
 	startrounds		500
-	error_hip	1.5 
-	error_up  	.025
+	error_hip	1.8
+	error_up  	.2
 	targetpitchmax  22				
 	targetpitchmin  50				
 	targetyawrange  120				
@@ -2539,7 +2539,7 @@ weapon "WPN_MAG58" //RPK
 	clipsize		75
 	startrounds		525
 	error_hip	1.0
-	error_up  	.042
+	error_up  	.05
 	targetpitchmax  22				
 	targetpitchmin  50				
 	targetyawrange  120				
@@ -3277,7 +3277,7 @@ weapon "WPN_PSG1" //SVD
 	clipsize		10
 	startrounds		200
 	error_hip	.5 
-	error_up  	.025
+	error_up  	.013
 	targetpitchmax  85				
 	targetpitchmin  85				
 	targetyawrange  120				

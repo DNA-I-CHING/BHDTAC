@@ -2102,7 +2102,7 @@ ammo AMMO_G36_556MM
 	scar_type 1
 	frndlyTrcrID 4405
 	foeTrcrID	 4406
-	impact_damage 48
+	impact_damage 51
     flag muzzle1
 	flag silenced
     ai_launch		GS_CAR15AI 	
