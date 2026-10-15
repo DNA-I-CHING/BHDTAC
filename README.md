@@ -12,4 +12,4 @@ Credits
 - Oscarmike247(JOTAC weapons' models)
 - Biggy(Opennova Blender plugin) https://github.com/opennova-net/opennova
 - BadgerLove(BHD large map support patch) https://github.com/BadgerLove/bhd-patches
-- JOTAC mod team
+- JOTAC mod team https://jo-tac.com/joint-operations-tactical-assault-coaliation-jo-tac/
