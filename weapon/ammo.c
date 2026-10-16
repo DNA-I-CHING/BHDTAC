@@ -2359,7 +2359,7 @@ ammo AMMO_G3_762MM
 	velocity 800
 	error 0
 	drag  1
-	recoil		31
+	recoil		22
 	scar_type 1
 	frndlyTrcrID 4405
 	foeTrcrID	 4406
@@ -3586,7 +3586,7 @@ ammo minirnds
     
 	bullet_radius .4	
 
-	impact_damage 200
+	impact_damage 100
 
 	kztype rounds_kz_C4
 	kz_damage 0		
@@ -3735,7 +3735,7 @@ ammo 50CAL
 	flag	IgnorFoilage
 	error 3
 	drag  1
-	recoil	10
+	recoil	20
 	scar_type 1
 	frndlyTrcrID 4405
 	foeTrcrID	 4406

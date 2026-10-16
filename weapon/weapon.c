@@ -153,7 +153,7 @@ weapon "WPN_colt45"
 	round_type		"AMMO_COLT_45"
 	clipsize		7
 	startrounds		70
-	error_hip	.4
+	error_hip	.2
 	error_up  	.084
 	targetpitchmax  85				
 	targetpitchmin  85				
@@ -273,7 +273,7 @@ weapon "WPN_M9Beretta"
 	round_type		"AMMO_BERETTA_9MM"
 	clipsize		15
 	startrounds		90
-	error_hip	.40
+	error_hip	.15
 	error_up  	.067
 	targetpitchmax  85				
 	targetpitchmin  85				
@@ -315,7 +315,7 @@ weapon "WPN_M9Beretta"
 
 
 	action "fire"
-		delayend				5
+		delayend				4
 		soundsetend			GS_BERETTA
 		anim				anim_wpn_fire
 		function			wpn_std_fire
@@ -1865,7 +1865,7 @@ weapon "WPN_M21"
 	end	
 
 	action "fire"
-		delayend				6
+		delayend				5
 		soundsetend			GS_M21
 		anim				anim_wpn_fire
 		function			wpn_std_fire
@@ -2300,7 +2300,7 @@ weapon "WPN_M249SAW"
 	clipsize		200
 	startrounds		600
 	error_hip	2.0 
-	error_up  	.3
+	error_up  	.2
 	targetpitchmax  22				
 	targetpitchmin  50				
 	targetyawrange  120				
@@ -2420,7 +2420,7 @@ weapon "WPN_M60"
 	clipsize		100
 	startrounds		500
 	error_hip	1.8
-	error_up  	.2
+	error_up  	.1
 	targetpitchmax  22				
 	targetpitchmin  50				
 	targetyawrange  120				
@@ -2773,7 +2773,7 @@ weapon "WPN_G3AUTO"
 
 	charfilter cqb
 	charfilter gunner
-	charfilter medic
+	/charfilter medic
 
 	loadout_selectable	1	
 	loadout_subclasses	1	
@@ -3405,9 +3405,9 @@ weapon "WPN_GRENADEFB"
 	round_type		"GRENADEFB"
 	clipsize		1
 	startrounds		5
-	classrounds		medic 5
+	classrounds		medic 3
 	classrounds		sniper 2
-	classrounds		cqb 3
+	classrounds		cqb 4
 	error_hip	0 
 	error_up  	0 
 	targetpitchmax  85				
@@ -4306,8 +4306,8 @@ weapon "WPN_EMPLCD50"
 	round_type  "50cal"
 	clipsize    -1
 	startrounds 500
-	error_hip	.025 
-	error_up  	.025 
+	error_hip	.1
+	error_up  	.1
 	targetpitchmax  15				
 	targetpitchmin  45				
 	targetyawrange  180				
@@ -4385,8 +4385,8 @@ weapon "WPN_EMPLCDMINI"
 	round_type  "minirnds"
 	clipsize    -1
 	startrounds 500
-	error_hip	0.15 
-	error_up  	0.125 
+	error_hip	0.2
+	error_up  	0.2
 	targetpitchmax  75				
 	targetpitchmin  12				
 	targetyawrange  75				
@@ -4766,8 +4766,8 @@ weapon "WPN_UG50cal"
 	round_type  "50cal"
 	clipsize    -1
 	startrounds 500
-	error_hip	.025 
-	error_up  	.025 
+	error_hip	.1
+	error_up  	.1
 	targetpitchmax  45				
 	targetpitchmin  45				
 	targetyawrange  180				
@@ -4844,8 +4844,8 @@ weapon "WPN_EMPLCD50NA"
 	round_type  "50cal"
 	clipsize    -1
 	startrounds 500
-	error_hip	.025 
-	error_up  	.025 
+	error_hip	.1
+	error_up  	.1
 	targetpitchmax  15				
 	targetpitchmin  45				
 	targetyawrange  180				
