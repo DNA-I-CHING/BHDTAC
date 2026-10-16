@@ -2624,6 +2624,7 @@ ammo AMMO_BARRET_50CAL
 	foeTrcrID	 4406
 	Mf_Light 100
     flag muzzle1  
+	flag	IgnorFoilage
     ai_launch		GS_BARRET 	
 
 	impact_damage 600
