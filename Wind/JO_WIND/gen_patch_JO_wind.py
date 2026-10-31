@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-JO（Joint Operations: Typhoon Rising）子弹风偏补丁生成器
-方案 A：理想恒加速风模型（与 DFBHD 风偏补丁同款）
+JO（Joint Operations: Typhoon Rising）子弹风偏补丁生成器（原生风力版）
 
 钩子: 0x004EAA5A（mover FUN_004e9d70 子弹重力 ADD，10 字节）→ CALL 洞 + NOP×5
-洞:   0x007472C9（.text 中部 55B cc 对齐间隙，文件偏移 0x3472C9）→ 45 字节注入码
-语义: 每 tick  vx/vy += (wind << 2) >> K   （<<2 对齐 BHD 满风标度，K=0..8 九档）
+洞:   0x007472C9（.text 中部 55B cc 对齐间隙，文件偏移 0x3472C9）→ 39 字节注入码
+语义: 每 tick  vx/vy += wind >> K   （JO 原生满风 197/帧 = 重力 118%，K=0..8 九档）
+推荐档位: K4 / K5
 
 用法:
-    python gen_patch_JO_wind.py [源exe] [输出目录]
+    python gen_patch_JO_wind_native.py [源exe] [输出目录]
     默认源 = D:\\3DM\\JOTAC\\Game\\JO\\jointops.exe（只读，严禁写入游戏目录）
     默认输出 = 脚本所在目录
 
@@ -29,22 +29,20 @@ HOOK_ORIG = bytes([0x81, 0x83, 0xA0, 0x00, 0x00, 0x00, 0x59, 0xFF, 0xFF, 0xFF])
 # 替换字节: CALL rel32 + NOP×5
 HOOK_NEW  = bytes([0xE8, 0x6A, 0xC8, 0x25, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90])
 
-# 洞内 45 字节模板；档位字节位于 idx20 / idx37（idx36 是操作码 F8，不能动！）
+# 洞内 39 字节模板；档位字节位于 idx17 / idx31
 CAVE_TEMPLATE = bytes([
     0x81, 0x83, 0xA0, 0x00, 0x00, 0x00, 0x59, 0xFF, 0xFF, 0xFF,  # add [ebx+0xA0],-167 原重力指令搬入
     0xA1, 0xE4, 0x59, 0xC0, 0x02,                                # mov eax,[0x02C059E4]  wind_x
-    0xC1, 0xE0, 0x02,                                            # shl eax,2             对齐 BHD
-    0xC1, 0xF8, 0x00,                                            # sar eax,K             档位 (idx20)
+    0xC1, 0xF8, 0x00,                                            # sar eax,K             档位 (idx17)
     0x01, 0x83, 0x98, 0x00, 0x00, 0x00,                          # add [ebx+0x98],eax    vx += wind
     0xA1, 0xE8, 0x59, 0xC0, 0x02,                                # mov eax,[0x02C059E8]  wind_y
-    0xC1, 0xE0, 0x02,                                            # shl eax,2
-    0xC1, 0xF8, 0x00,                                            # sar eax,K             档位 (idx37)
+    0xC1, 0xF8, 0x00,                                            # sar eax,K             档位 (idx31)
     0x01, 0x83, 0x9C, 0x00, 0x00, 0x00,                          # add [ebx+0x9C],eax    vy += wind
     0xC3,                                                        # ret
 ])
 
-# 每档与原版的预期差异字节数：钩子 9（rel32 高字节 0x00 与原值重合）+ 洞 45（cc 全被覆盖）= 54
-EXPECTED_DIFF = 54
+# 每档与原版的预期差异字节数：钩子 9 + 洞 39 = 48
+EXPECTED_DIFF = 48
 
 
 def fail(msg):
@@ -59,7 +57,7 @@ def main():
     rel = CAVE_VA - (HOOK_VA + 5)
     if rel != 0x25C86A:
         fail("rel32 = 0x%08X, 预期 0x25C86A" % rel)
-    if len(CAVE_TEMPLATE) != 45:
+    if len(CAVE_TEMPLATE) != 39:
         fail("洞模板长度错误: %d" % len(CAVE_TEMPLATE))
 
     data = open(src, "rb").read()
@@ -84,17 +82,17 @@ def main():
     for K in range(9):
         buf = bytearray(data)
         cave = bytearray(CAVE_TEMPLATE)
-        cave[20] = K
-        cave[37] = K
+        cave[17] = K
+        cave[31] = K
         buf[HOOK_OFF:HOOK_OFF + 10] = HOOK_NEW
-        buf[CAVE_OFF:CAVE_OFF + 45] = cave
-        path = os.path.join(outdir, "jointops_wind_K%d.exe" % K)
+        buf[CAVE_OFF:CAVE_OFF + 39] = cave
+        path = os.path.join(outdir, "jointops_wind_native_K%d.exe" % K)
         with open(path, "wb") as f:
             f.write(buf)
         outs[K] = buf
-        print("[..] 已生成 jointops_wind_K%d.exe" % K)
+        print("[..] 已生成 jointops_wind_native_K%d.exe" % K)
 
-    # 断言 3/4：每档与原版 diff 恰 54 字节，且全部落在钩子/洞范围内；档位字节正确
+    # 断言 3/4：每档与原版 diff 恰 48 字节，且全部落在钩子/洞范围内；档位字节正确
     print("[i] --- 逐档校验 ---")
     for K in range(9):
         buf = outs[K]
@@ -102,20 +100,20 @@ def main():
         if len(diff) != EXPECTED_DIFF:
             fail("K%d: diff=%d, 预期 %d" % (K, len(diff), EXPECTED_DIFF))
         outside = [i for i in diff
-                   if not (HOOK_OFF <= i < HOOK_OFF + 10 or CAVE_OFF <= i < CAVE_OFF + 45)]
+                   if not (HOOK_OFF <= i < HOOK_OFF + 10 or CAVE_OFF <= i < CAVE_OFF + 39)]
         if outside:
             fail("K%d: 存在钩子/洞范围外的改动: %s" % (K, ", ".join("0x%X" % i for i in outside[:5])))
-        if buf[CAVE_OFF + 20] != K or buf[CAVE_OFF + 37] != K:
-            fail("K%d: 档位字节错误 (%d/%d)" % (K, buf[CAVE_OFF + 20], buf[CAVE_OFF + 37]))
+        if buf[CAVE_OFF + 17] != K or buf[CAVE_OFF + 31] != K:
+            fail("K%d: 档位字节错误 (%d/%d)" % (K, buf[CAVE_OFF + 17], buf[CAVE_OFF + 31]))
         md5 = hashlib.md5(bytes(buf)).hexdigest()
         print("[ok] K%d: diff=%d  档位字节=%d/%d  md5=%s" % (K, len(diff), K, K, md5))
 
     # 断言 5：九档之间仅差 2 个档位字节
     a, z = outs[0], outs[8]
     cross = [i for i in range(SIZE) if a[i] != z[i]]
-    if cross != [CAVE_OFF + 20, CAVE_OFF + 37]:
+    if cross != [CAVE_OFF + 17, CAVE_OFF + 31]:
         fail("跨档 diff 异常: %s" % ", ".join("0x%X" % i for i in cross[:5]))
-    print("[ok] 跨档校验：K0 vs K8 仅差 2 字节 @ 0x%X / 0x%X" % (CAVE_OFF + 20, CAVE_OFF + 37))
+    print("[ok] 跨档校验：K0 vs K8 仅差 2 字节 @ 0x%X / 0x%X" % (CAVE_OFF + 17, CAVE_OFF + 31))
 
     # capstone 反汇编自检（可选）
     try:
@@ -127,10 +125,10 @@ def main():
     except TypeError:
         print("[i] capstone 版本不兼容，跳过反汇编自检")
         return
-    for K in (0, 6):
+    for K in (0, 4):
         cave = bytearray(CAVE_TEMPLATE)
-        cave[20] = K
-        cave[37] = K
+        cave[17] = K
+        cave[31] = K
         print("[i] --- 洞内反汇编自检 (K=%d) ---" % K)
         for ins in md.disasm(bytes(cave), CAVE_VA):
             print("     0x%08X  %-6s %s" % (ins.address, ins.mnemonic, ins.op_str))
@@ -138,7 +136,7 @@ def main():
         for ins in md.disasm(HOOK_NEW, HOOK_VA):
             print("     0x%08X  %-6s %s" % (ins.address, ins.mnemonic, ins.op_str))
 
-    print("[DONE] 九档补丁生成并校验完毕，输出目录: %s" % outdir)
+    print("[DONE] 九档原生风力补丁生成并校验完毕，输出目录: %s" % outdir)
     print("[i] 注意：产物只写本目录，请自行复制到游戏目录；联机需全员同档位。")
 
 

@@ -1,9 +1,9 @@
-# 《Joint Operations: Typhoon Rising》Wind System & Bullet Wind Drift Patch — Analysis Report
+# Joint Operations: Typhoon Rising — Wind System & Bullet Wind Drift Patch, Analysis Report
 
 - **Target file**: `jointops.exe` (32-bit PE, ImageBase `0x400000`, 4,612,096 bytes)
-- **Method**: Ghidra static analysis + PowerShell byte-level scanning/patch generation + in-game verification
-- **Date**: 2026-10-31
-- **Conclusion**: The engine ships a complete weather wind system (wind speed kph, wind direction, wind vector globals), and the wind vector correctly drives smoke/particles — but the wind term inside the drag function is **dead code** (`v+=wind → v+=decel → v-=wind`, an add/sub sandwich with no multiplication in between, net effect always zero). Bullets ignoring wind is a refactor leftover, not a missing feature. A 10-byte hook + 45-byte code cave in a `.text` cc alignment gap gives bullets the same ideal constant-acceleration wind drift as the DFBHD wind patch (`v += (wind<<2)>>K`, nine tiers K0–K8). Verified in-game, drift direction correct.
+- **Method**: Ghidra static analysis + byte-level scanning/patch generation + in-game verification
+- **Date**: 2026-11-01 (initial 2026-10-31)
+- **Conclusion**: The engine ships a complete weather wind system (wind speed kph, wind direction, wind vector globals), and the wind vector correctly drives smoke/particles — but the wind term inside the drag function is **dead code** (`v+=wind → v+=decel → v-=wind`, an add/sub sandwich with no multiplication in between, net effect always zero). Bullets ignoring wind is a refactor leftover, not a missing feature. A 10-byte hook + a 39-byte code cave in a `.text` cc alignment gap give bullets ideal constant-acceleration wind drift (`v += wind >> K`, nine tiers K0–K8, using the engine's native wind power: full wind = 118% of gravity). The injection structure is verified in-game, drift direction correct.
 
 ---
 
@@ -72,7 +72,7 @@ JO anti-reversal guard: `dot(v,decel)>0 → v=0`. Velocity fields: instance `+0x
 
 **Zero bytes in the file ≠ usable space at runtime**; the only reliable JO cave sites are cc gaps in mid-`.text`.
 
-### 4.2 Injection scheme (55 bytes written per tier, 54-byte diff vs original)
+### 4.2 Injection scheme (49 bytes written per tier, 48-byte diff vs original)
 
 **Hook** (file `0xEAA5A`, 10 bytes) — the bullet gravity block, naturally "bullets only":
 
@@ -91,40 +91,40 @@ patched:  E8 6A C8 25 00 90 90 90 90 90   ; CALL 0x7472C9 (rel32=0x25C86A) + NOP
 
 The engine splits gravity into two complementary halves: bit 0x100 **clear** (bullets) applies gravity in the mover, **set** (grenades/thrown objects) applies gravity inside the drag function (`0x4E6329`). Hooking the bullet branch means grenades reach the JNZ and skip the patch entirely — no extra checks needed.
 
-**Cave** (file `0x3472C9`, 45 bytes):
+**Cave** (file `0x3472C9`, 39 bytes):
 
 ```
 0x7472C9  add  [ebx+0xA0],-167         ; original gravity instruction relocated verbatim
 0x7472D3  mov  eax,[0x02C059E4]        ; wind_x
-0x7472D8  shl  eax,2                   ; ×4 to align with BHD full-wind scale (see 4.3)
-0x7472DB  sar  eax,K                   ; tier
-0x7472DE  add  [ebx+0x98],eax          ; vx += wind
-0x7472E4  mov  eax,[0x02C059E8]        ; wind_y
-0x7472E9  shl  eax,2
-0x7472EC  sar  eax,K
-0x7472EF  add  [ebx+0x9C],eax          ; vy += wind
-0x7472F5  ret                          ; → 0x4EAA5F(NOP×5) → 0x4EAA64 args → CALL drag
+0x7472D8  sar  eax,K                   ; tier
+0x7472DB  add  [ebx+0x98],eax          ; vx += wind
+0x7472E1  mov  eax,[0x02C059E8]        ; wind_y
+0x7472E6  sar  eax,K
+0x7472E9  add  [ebx+0x9C],eax          ; vy += wind
+0x7472EF  ret                          ; → 0x4EAA5F(NOP×5) → 0x4EAA64 args → CALL drag
 ```
 
-Semantics: turns wind from dead code into a **per-tick constant-force acceleration** (ideal wind model, same as the DFBHD patch), effective for all ammo types of mover `FUN_004e9d70` regardless of drag; `sar` (arithmetic shift) keeps negative wind components sign-correct; wind_z is always 0 so vz needs no handling. Register safety: EBX = bullet instance (used by the original instruction anyway), EAX is dead at the hook (reloaded at `0x4EAA71`).
+Semantics: turns wind from dead code into a **per-tick constant-force acceleration** (ideal wind model), effective for all ammo types of mover `FUN_004e9d70` regardless of drag; `sar` (arithmetic shift) keeps negative wind components sign-correct; wind_z is always 0 so vz needs no handling. Register safety: EBX = bullet instance (used by the original instruction anyway), EAX is dead at the hook (reloaded at `0x4EAA71`).
 
-### 4.3 Scale tier adjustment
+### 4.3 Native wind tier adjustment
 
-16.16 fixed point, tick ≈ 60 Hz: gravity 167/frame ≈ 9.17 m/s²; JO full wind 45 kph ≈ 197/frame ≈ **118% of gravity**; BHD full wind ≈ 736/frame ≈ **441% of gravity**. The cave shifts left by 2 first (`shl 2`, ×4) so JO full wind ≈ 788/frame ≈ 472% of gravity, aligning with the BHD scale (+7% or less) and making **the BHD patch tier table directly reusable**.
+16.16 fixed point, tick ≈ 60 Hz: gravity 167/frame ≈ 9.17 m/s²; JO full wind 45 kph ≈ 197/frame ≈ **118% of gravity** — the patch uses the engine's native wind power as-is with no extra scaling: a full crosswind pushes a bullet at about 1.18× gravity per tick.
 
-Edit file offsets **`0x3472DD`** and **`0x3472EE`** (`sar` immediates, both must match):
+Each tier divides the wind by 2^K with `sar eax,K`: one 3-byte instruction with a 1-byte immediate — changing tiers means editing immediates only, instruction length is fixed (all nine tiers share the exact same code layout), and the shift is exact in fixed point with no rounding accumulation. The nine tiers span 118% → 0.45% (a 256× range, each tier halves).
+
+Edit file offsets **`0x3472DA`** and **`0x3472E8`** (`sar` immediates, both must match):
 
 | K | Wind (full wind vs gravity) | 300 m drift* | Notes |
 |---|---|---|---|
-| `00` | 472% | ~3.0 m | reference only |
-| `01` | 236% | ~1.5 m | |
-| `02` | 118% | ~76 cm | = JO native full-wind strength |
-| `03` | 59% | ~38 cm | |
-| `04` | 29.5% | ~19 cm | |
-| `05` | 14.7% | ~9.5 cm | |
-| **`06`** | 7.3% | ~4.8 cm | **recommended** |
-| **`07`** | 3.7% | ~2.4 cm | **recommended** |
-| `08` | 1.8% | ~1.2 cm | barely noticeable |
+| `00` | 118% | ~76 cm | = JO native full-wind strength (reference only) |
+| `01` | 59% | ~38 cm | |
+| `02` | 29.5% | ~19 cm | |
+| `03` | 14.7% | ~9.5 cm | |
+| **`04`** | 7.3% | ~4.8 cm | **recommended** |
+| **`05`** | 3.7% | ~2.4 cm | **recommended** |
+| `06` | 1.8% | ~1.2 cm | |
+| `07` | 0.9% | ~0.6 cm | |
+| `08` | 0.45% | ~0.3 cm | barely noticeable |
 
 \* Anchor: 800 m/s bullet, full 45 kph crosswind, square-law drift ½at².
 
@@ -137,12 +137,12 @@ Edit file offsets **`0x3472DD`** and **`0x3472EE`** (`sar` immediates, both must
 
 ## 5. Verification Log
 
-1. In-game: wind drift works, **direction correct** (the `+=` convention holds — the stored wind vector points downwind, consistent with the verified BHD patch).
+1. In-game verification (2026-10-31, same injection structure — same hook, same cave, same add semantics): wind drift works, **direction correct** (the `+=` convention holds — the stored wind vector points downwind). Direction findings are scale-independent and carry over to the native build; drift magnitudes at native tiers are pending in-game confirmation.
 2. Only maps with wind actually set in MED are affected; windless maps show no difference.
-3. Patch integrity: five generator assertions (source size 4,612,096; original hook bytes verified byte-for-byte; cave region 55 × 0xCC; each tier differs from the original in exactly 54 bytes, all inside the hook/cave ranges; the nine tiers differ from each other in exactly 2 bytes @ `0x3472DD`/`0x3472EE`). The assertion chain caught two real bugs: a miscalculated rel32 (now guarded by a formula-based assertion) and a misplaced second `sar` immediate (cave offset 37, not the assumed-symmetric 36 — offset 36 is the F8 opcode byte).
+3. Patch integrity: five generator assertions (source size 4,612,096; original hook bytes verified byte-for-byte; cave region 55 × 0xCC; each tier differs from the original in exactly 48 bytes, all inside the hook/cave ranges; the nine tiers differ from each other in exactly 2 bytes @ `0x3472DA`/`0x3472E8`). The assertion chain caught two real bugs: a miscalculated rel32 (now guarded by a formula-based assertion) and a misplaced second `sar` immediate (cave offset 31, not the assumed-symmetric 30 — offset 30 is the F8 opcode byte).
 
 ## 6. Related Documents
 
-- DFBHD companion report: `Wind_Bullet_zh-CN.md` (source of the wind model, tier table and `+=` direction convention; combined, the two reports form the complete ballistic physics picture of this engine).
+- DFBHD companion report: `Wind_Bullet_zh-CN.md` (ballistic wind analysis of this engine's predecessor and the source of the `+=` direction convention; combined, the two reports form the complete ballistic physics picture of this engine).
 - Release notes: `readme.txt` (bilingual tier table, install steps, DIY tier offsets, MP same-tier requirement).
-- Patch generator: `gen_patch_JO_wind.py` (assertion chain + capstone self-check, outputs the nine tier exes).
+- Patch generator: `gen_patch_JO_wind_native.py` (assertion chain + capstone self-check, outputs the nine tier exes).
