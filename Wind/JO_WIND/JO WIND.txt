@@ -1,0 +1,124 @@
+================================================================
+ JO Bullet Wind Patch
+ Joint Operations: Typhoon Rising
+================================================================
+
+WHAT IT DOES
+------------
+Joint Operations ships with dead ballistic-wind code: even when the mission
+editor sets wind and a weapon's drag is not 1.0, bullets are never pushed by
+the wind (only smoke and particles react to it). This patch restores wind
+drift using the same idealized model as the DFBHD wind patch: while a bullet
+is in flight, a constant wind acceleration is applied every physics tick,
+scaled down by a tier factor.
+
+- Affects bullets only. Grenades and thrown objects are untouched.
+- Only maps whose wind is actually set in the mission editor (MED) are
+  affected. Maps without wind fly exactly like the unpatched game.
+- Wind strength is scaled x4 to match Delta Force BHD's full-wind power
+  (JO's 45 kph cap at BHD scale ~= 4.4x gravity crosswind).
+
+TIERS
+-----
+Nine exes are included. Each is the original jointops.exe with a 55-byte
+patch (10-byte hook + 45-byte code cave). Only ONE byte differs between
+tiers - the shift amount K:
+
+Tier   Full-wind drift (vs gravity)   300 m drift*        Note
+K0     472%                           ~3.0 m              (reference only)
+K1     236%                           ~1.5 m
+K2     118%                           ~76 cm
+K3     59%                            ~38 cm
+K4     29.5%                          ~19 cm
+K5     14.7%                          ~9.5 cm
+K6     7.3%                           ~4.8 cm             <-- recommended
+K7     3.7%                           ~2.4 cm             <-- recommended
+K8     1.8%                           ~1.2 cm
+
+* rough anchor: 800 m/s bullet, full 45 kph crosswind, square-law drift.
+
+INSTALL
+-------
+1. Copy ONE tier exe (e.g. jointops_wind_K6.exe) into your Joint Operations
+   game folder, next to the original jointops.exe.
+2. Launch the game with that exe directly. No renaming, and the original
+   jointops.exe is never modified.
+3. To play with vanilla ballistics, just launch the original exe again.
+
+Uninstall: delete the tier exe you copied in.
+
+MULTIPLAYER
+-----------
+Ballistics are computed client-side. Every player in the same session must
+run the SAME tier, otherwise shots land differently for different players.
+
+VERSION NOTES
+-------------
+- 55 bytes written per tier: 10-byte hook + 45-byte code cave.
+- Hook: 0x004EAA5A (mover gravity block). This code path only runs for
+  bullets (flag bit 0x100 = 0); grenades take the other branch, so the
+  bullet-only behavior is automatic.
+- Code cave: 0x007472C9, a 55-byte int3 alignment gap between functions
+  in .text (survives runtime - game-owned zero/slack regions do not).
+- Wind source: the live wind globals at 0x02C059E4 / 0x02C059E8 - the same
+  in-game wind that drives smoke and particles.
+- Model: every tick,  v += (wind << 2) >> K  applied to vx and vy.
+
+DIY TUNING
+----------
+Hex-edit BOTH shift bytes at file offsets 0x03472DD and 0x03472EE
+(set each to 0x0K, K = 0..8). No other byte differs between tiers.
+If drift points the wrong way on your build, flip the two add opcodes
+0x01 -> 0x29 (sub) at file offsets 0x03472DE and 0x03472EF.
+
+================================================================
+中文说明
+================================================================
+
+作用
+----
+JO 的子弹风偏代码是死代码：即使 MED 给地图设置了风、武器 drag 不为 1，
+子弹也永远不会被风吹动（只有烟雾等粒子受风影响）。本补丁用与 BHD 风偏
+补丁相同的理想风模型恢复弹道风偏：子弹飞行期间每个物理 tick 施加恒定
+风加速度，再按档位缩放。
+
+- 只影响子弹，手雷/投掷物不受影响。
+- 只有在 MED 里给地图设置过风才会生效；无风地图弹道与原版完全一致。
+- 风力按 x4 缩放以对齐 BHD 满风强度（45kph 满侧风 ≈ 4.4 倍重力）。
+
+档位
+----
+包含九个 exe，每个都是原版 jointops.exe 打上 55 字节补丁（10 字节钩子
++ 45 字节 code cave），档位之间只差 1 个字节（移位量 K）：
+
+档位   满风漂移（相对重力）        300 米漂移*
+K0     472%                        ~3.0 米      （仅参考，夸张）
+K1     236%                        ~1.5 米
+K2     118%                        ~76 厘米
+K3     59%                         ~38 厘米
+K4     29.5%                       ~19 厘米
+K5     14.7%                       ~9.5 厘米
+K6     7.3%                        ~4.8 厘米    <-- 推荐档位
+K7     3.7%                        ~2.4 厘米    <-- 推荐档位
+K8     1.8%                        ~1.2 厘米
+
+* 物理锚点：800 m/s 子弹、45kph 满侧风、300 米处的平方律漂移。
+
+安装
+----
+1. 把其中一个档位 exe（如 jointops_wind_K6.exe）复制到 JO 游戏目录，
+   与原版 jointops.exe 放在一起。
+2. 直接双击该 exe 启动游戏。无需重命名，原版 jointops.exe 不做任何改动。
+3. 想玩原版弹道，用原版 exe 启动即可。
+
+卸载：删除复制进来的档位 exe。
+
+联机
+----
+弹道在本地计算。同一局的所有玩家必须使用相同档位，否则各人弹着点不一致。
+
+DIY 调档
+--------
+用十六进制编辑器把文件偏移 0x03472DD 和 0x03472EE 这两个字节改为 0x0K
+（K = 0..8），两处都要改，其余字节各档完全相同。
+若实测漂移方向反了，把 0x03472DE 和 0x03472EF 处的 0x01 改为 0x29（减法）。
