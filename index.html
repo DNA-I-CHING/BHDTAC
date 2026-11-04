@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JO/BHD 风偏弹道 3D 模拟器</title>
+<style>
+  :root{
+    --bg:#0d120e; --panel:rgba(14,20,15,.86); --line:#2c3a2e;
+    --amber:#ffb454; --green:#9fce6a; --txt:#d6e4d0; --dim:#7d8f7a;
+    --mono:ui-monospace,'Cascadia Mono',Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
+    font:13px/1.5 "Segoe UI","Microsoft YaHei",sans-serif;color:var(--txt)}
+  canvas#gl{display:block}
+
+  /* ---------- 准星 ---------- */
+  #crosshair{position:fixed;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;
+    pointer-events:none;z-index:4}
+  #crosshair::before,#crosshair::after{content:"";position:absolute;background:rgba(255,220,150,.9);
+    box-shadow:0 0 2px #000}
+  #crosshair::before{left:50%;top:0;width:2px;height:100%;margin-left:-1px;
+    clip-path:polygon(0 0,100% 0,100% 32%,0 32%,0 68%,100% 68%,100% 100%,0 100%)}
+  #crosshair::after{top:50%;left:0;height:2px;width:100%;margin-top:-1px;
+    clip-path:polygon(0 0,32% 0,32% 100%,0 100%,68% 0,100% 0,100% 100%,68% 100%)}
+  body.zoomed #crosshair{display:none}
+
+  /* ---------- 狙击镜 ---------- */
+  #scope{position:fixed;inset:0;display:none;pointer-events:none;z-index:5}
+  body.zoomed #scope{display:block}
+  #scope .ring{position:absolute;left:50%;top:50%;width:70vmin;height:70vmin;
+    transform:translate(-50%,-50%);border-radius:50%;
+    box-shadow:0 0 0 200vmax #05070a;border:2px solid #1c261c}
+  #scope .hair{position:absolute;background:rgba(10,14,10,.9)}
+  #scope .h1{left:0;right:0;top:50%;height:1px}
+  #scope .h2{top:0;bottom:0;left:50%;width:1px}
+  #scopeInfo{position:absolute;left:50%;top:calc(50% + 36vmin);transform:translateX(-50%);
+    font-family:var(--mono);font-size:13px;color:var(--green);letter-spacing:.1em;
+    text-shadow:0 0 4px #000;white-space:nowrap}
+
+  /* ---------- 面板通用 ---------- */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    backdrop-filter:blur(6px);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+  .card h3{font-size:12px;letter-spacing:.18em;color:var(--amber);
+    border-bottom:1px solid var(--line);padding:8px 12px;font-weight:600}
+  .card .bd{padding:10px 12px}
+
+  /* ---------- 控制面板（左下） ---------- */
+  #panel{position:fixed;left:14px;top:14px;width:270px;z-index:10}
+  #panel .row{display:flex;align-items:center;gap:8px;margin:7px 0}
+  #panel label{flex:0 0 74px;color:var(--dim);font-size:12px}
+  #panel .val{flex:0 0 78px;text-align:right;font-family:var(--mono);color:var(--green);font-size:12px}
+  input[type=range]{flex:1;accent-color:var(--amber);height:4px}
+  .seg{display:flex;flex:1;gap:4px}
+  .seg button{flex:1;background:#101710;border:1px solid var(--line);color:var(--dim);
+    border-radius:4px;padding:2px 0;line-height:1.3;cursor:pointer}
+  .seg button small{display:block;font-size:9.5px;font-family:var(--mono);opacity:.8}
+  .seg button.active{background:#2c3a26;color:var(--green);border-color:#5a7a4a}
+  select,input[type=checkbox]{accent-color:var(--amber)}
+  select{background:#101710;color:var(--txt);border:1px solid var(--line);
+    border-radius:4px;padding:2px 4px;font-size:12px;flex:1}
+  input[type=number]{background:#101710;color:var(--green);border:1px solid var(--line);
+    border-radius:4px;padding:2px 4px;font-family:var(--mono);font-size:12px;flex:1;min-width:0}
+  #mildots .mdot{position:absolute;width:5px;height:5px;border-radius:50%;
+    background:rgba(15,20,15,.95);box-shadow:0 0 2px rgba(235,245,225,.55);
+    transform:translate(-50%,-50%)}
+  .sub{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+  table.pred{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11.5px;margin-top:4px}
+  table.pred td,table.pred th{padding:2px 4px;text-align:right;color:var(--txt)}
+  table.pred th{color:var(--dim);font-weight:400;text-align:right}
+  table.pred td:first-child,table.pred th:first-child{text-align:left}
+  details.info{margin-top:8px;font-size:11.5px;color:var(--dim)}
+  details.info summary{cursor:pointer;color:var(--amber);letter-spacing:.1em;font-size:11px}
+  details.info p{margin:6px 0}
+  details.info code{font-family:var(--mono);color:var(--green);font-size:11px}
+
+  /* ---------- 战报（右上） ---------- */
+  #stats{position:fixed;right:14px;top:14px;width:250px;z-index:10;display:none}
+  #stats .big{font-family:var(--mono);font-size:24px;color:var(--amber);margin:2px 0 6px}
+  #stats .kv{display:flex;justify-content:space-between;font-size:12px;margin:3px 0}
+  #stats .kv b{font-family:var(--mono);font-weight:400;color:var(--green)}
+
+  /* ---------- 罗盘（顶中） ---------- */
+  #compass{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:10;
+    width:190px;text-align:center}
+  #compass .dial{position:relative;width:74px;height:74px;margin:0 auto;border-radius:50%;
+    border:1px solid var(--line);background:rgba(10,15,10,.7)}
+  #compass .tick{position:absolute;left:50%;top:2px;width:1px;height:7px;background:var(--dim);
+    transform-origin:50% 35px}
+  #compass #wArrow{position:absolute;left:50%;top:50%;width:2px;height:26px;margin:-26px 0 0 -1px;
+    background:linear-gradient(to top,transparent,var(--amber));transform-origin:50% 100%}
+  #compass #wArrow::before{content:"";position:absolute;top:-6px;left:-4px;border:5px solid transparent;
+    border-bottom:9px solid var(--amber)}
+  #compass .meta{font-family:var(--mono);font-size:11.5px;color:var(--txt);margin-top:5px}
+  #compass .meta b{color:var(--amber);font-weight:400}
+
+  /* ---------- 解锁提示层 ---------- */
+  #lockHint{position:fixed;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;
+    background:rgba(5,8,5,.35);cursor:pointer}
+  #lockHint .tip{padding:14px 26px;font-size:14px;letter-spacing:.14em;color:var(--txt);
+    border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+  #lockHint .tip small{display:block;text-align:center;color:var(--dim);letter-spacing:0;
+    margin-top:6px;font-size:11.5px}
+  body.locked #lockHint{display:none}
+</style>
+</head>
+<body>
+
+<div id="crosshair"></div>
+<div id="scope"><div class="ring"></div><div class="hair h1"></div><div class="hair h2"></div>
+  <div id="mildots"></div>
+  <div id="scopeInfo">4x · 表尺 300 m</div></div>
+
+<!-- 风向罗盘 -->
+<div id="compass" class="card" style="background:transparent;border:none;box-shadow:none">
+  <div class="dial" id="dial"><div id="wArrow"></div></div>
+  <div class="meta">风 <b id="cWind">12 kph</b> · <b id="cDir">270°</b> · 档 <b id="cTier">K5</b></div>
+</div>
+
+<!-- 上一发战报 -->
+<div id="stats" class="card">
+  <h3>上一发 · 战报</h3>
+  <div class="bd">
+    <div style="color:var(--dim);font-size:11px">风偏（相对无风基准，横向）</div>
+    <div class="big" id="sDrift">-- cm</div>
+    <div class="kv"><span>命中</span><b id="sHit">--</b></div>
+    <div class="kv"><span>纵向偏差</span><b id="sVert">--</b></div>
+    <div class="kv"><span>距离偏差</span><b id="sLong">--</b></div>
+    <div class="kv"><span>飞行时间</span><b id="sTime">--</b></div>
+    <div class="kv"><span>落点横向速度</span><b id="sLatV">--</b></div>
+  </div>
+</div>
+
+<!-- 控制面板 -->
+<div id="panel" class="card">
+  <h3>弹道参数</h3>
+  <div class="bd">
+    <div class="row"><label>引擎风标</label>
+      <div class="seg" id="engSeg">
+        <button type="button" data-v="jo" class="active">JO 原生<small>197/帧 · 118% g</small></button>
+        <button type="button" data-v="bhd">BHD<small>736/帧 · 441% g</small></button>
+      </div></div>
+    <div class="row"><label>武器预设</label>
+      <select id="wpn">
+        <option value="400">冲锋枪 · 约 400 m/s</option>
+        <option value="800" selected>突击步枪 · 约 800 m/s</option>
+        <option value="1000">狙击枪 · 约 1000 m/s</option>
+      </select></div>
+    <div class="row"><label>弹速</label>
+      <input type="number" id="v0in" min="0" max="3000" step="50" value="800"><span class="val" id="v0Txt">800 m/s</span></div>
+    <div class="row"><label>风偏补丁</label>
+      <input type="checkbox" id="on" checked><span class="val" id="onTxt">已启用</span></div>
+    <div class="row"><label>档位 K</label>
+      <input type="range" id="k" min="0" max="8" step="1" value="5"><span class="val" id="kTxt">K5 /32</span></div>
+    <div class="row"><label>风速</label>
+      <input type="range" id="wsp" min="0" max="45" step="1" value="20"><span class="val" id="wspTxt">20 kph</span></div>
+    <div class="row"><label>风向</label>
+      <input type="range" id="wdir" min="0" max="359" step="1" value="270"><span class="val" id="wdirTxt">270°</span></div>
+    <div class="row" style="color:var(--dim);font-size:11px">
+      <span id="effTxt">--</span></div>
+    <div class="sub">
+      <details class="info" open>
+        <summary>正侧风漂移预测（随表尺自动抬枪）</summary>
+        <table class="pred">
+          <tr><th>距离</th><th>漂移</th><th>飞行</th></tr>
+          <tr><td>100 m</td><td id="p100">--</td><td id="t100">--</td></tr>
+          <tr><td>300 m</td><td id="p300">--</td><td id="t300">--</td></tr>
+          <tr><td>500 m</td><td id="p500">--</td><td id="t500">--</td></tr>
+        </table>
+      </details>
+      <details class="info">
+        <summary>模型说明（源自补丁分析）</summary>
+        <p>引擎 16.16 定点、物理 tick 60 Hz；重力 <code>+167/帧</code> → 9.17 m/s²。</p>
+        <p>默认弹种 drag = 1.0，阻力函数空转 —— 子弹不受风（补丁根因）。本模拟无空气阻力，与引擎一致。</p>
+        <p>补丁模型：每 tick <code>v += wind &gt;&gt; K</code>，恒加速、漂移随距离平方增长。K 每加 1 档风力减半。</p>
+        <p>罗盘箭头指向风吹去的方向（相对准星朝向）。</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div id="lockHint"><div class="tip">点 击 进 入 射 击 位
+  <small>WASD 移动 · 左键射击 · 右键开/关镜 · 滚轮倍率 · Ctrl+滚轮表尺 · R 清弹孔 · T 清轨迹 · Esc 退出调整参数</small></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ================================================================
+ *  JO/BHD 风偏弹道 3D 模拟器
+ *  物理全部取自 NovaLogic 引擎逆向结论：
+ *   - 16.16 定点，物理 tick = 1/60 s
+ *   - 重力：速度每 tick +167 定点单位 → 9.17 m/s^2
+ *   - JO 满风矢量 197/帧（=118% 重力），BHD 736/帧（=441%）
+ *   - 补丁模型：vx += wind >> K（恒加速，K0..K8）
+ *   - 默认弹种 drag = 1.0 → 无空气阻力
+ * ================================================================ */
+const TICK = 1/60;
+const G      = 167/65536*3600;   // 9.173 m/s^2
+const WIND_JO  = 197/65536*3600; // 10.82 m/s^2
+const WIND_BHD = 736/65536*3600; // 40.43 m/s^2
+let V0 = 800;                    // 枪口速度 m/s（面板可调）
+const EYE = 1.7;                 // 眼高
+
+/* ---------------- 场景 ---------------- */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9db4c0);
+
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, .05, 2000);
+camera.rotation.order = 'YXZ';
+camera.position.set(0, 4 + EYE, 2);   // 出生在台顶
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.domElement.id = 'gl';
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xd8e8ff, 0x405038, .95));
+const sun = new THREE.DirectionalLight(0xfff1d8, .8);
+sun.position.set(90, 140, 60);
+scene.add(sun);
+
+/* 地面（覆盖 800 m 射程） */
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(1200, 1400),
+  new THREE.MeshLambertMaterial({color:0x35452c}));
+ground.rotation.x = -Math.PI/2;
+ground.position.z = -400;
+scene.add(ground);
+
+/* 四棱台射击台（顶 8×8、底 20×20、高 4 m，四面斜坡可走上走下） */
+const terrMat = new THREE.MeshLambertMaterial({color:0x59503f});
+const frustum = new THREE.Mesh(
+  new THREE.CylinderGeometry(4*Math.SQRT2, 10*Math.SQRT2, 4, 4, 1), terrMat);
+frustum.rotation.y = Math.PI/4;   // 让四个斜面朝向坐标轴
+frustum.position.set(0, 2, 4);
+scene.add(frustum);
+/* 斜坡/台面高度：顶区(切比雪夫距 ≤4) = 4m，坡面线性降至 0 */
+function heightAt(x, z){
+  const d = Math.max(Math.abs(x), Math.abs(z - 4));
+  if (d <= 4) return 4;
+  if (d >= 10) return 0;
+  return 4*(10 - d)/6;
+}
+
+/* ---------------- 靶板与距离标记（阶梯错位排列） ---------------- */
+const BOARDS = [{d:100, x:-14}, {d:200, x:-7}, {d:300, x:0}, {d:400, x:7},
+                {d:500, x:14}, {d:600, x:21}, {d:700, x:28}, {d:800, x:35}]
+  .map(({d, x}) => {
+  const b = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4),
+    new THREE.MeshLambertMaterial({map:boardTexture()}));
+  b.position.set(x, 1.4, -d);
+  scene.add(b);
+  // 支柱
+  for (const sx of [x - 1.0, x + 1.0]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.4,8),
+      new THREE.MeshLambertMaterial({color:0x6b5a3e}));
+    post.position.set(sx, .7, -d + .02);
+    scene.add(post);
+  }
+  // 地面距离横线
+  const line = new THREE.Mesh(new THREE.BoxGeometry(46,.02,.3),
+    new THREE.MeshLambertMaterial({color:0xcfd8c2}));
+  line.position.set(0, .02, -d);
+  scene.add(line);
+  // 距离标牌
+  const lbl = makeText(d + ' m');
+  lbl.position.set(x + 4.2, 2.6, -d);
+  scene.add(lbl);
+  const lbl2 = makeText(d + ' m');
+  lbl2.position.set(x - 4.2, 2.6, -d);
+  scene.add(lbl2);
+  return {d, x, mesh:b};
+});
+
+function boardTexture(){
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  x.fillStyle = '#e8e4d8'; x.fillRect(0,0,256,256);
+  x.strokeStyle = '#20241f'; x.lineWidth = 6; x.strokeRect(4,4,248,248);
+  const rings = [[104,'#20241f'],[78,'#e8e4d8'],[52,'#20241f'],[26,'#b8412e']];
+  for (const [r,col] of rings){
+    x.beginPath(); x.arc(128,128,r,0,7); x.fillStyle = col; x.fill();
+    if (col !== '#b8412e'){ x.strokeStyle = '#20241f'; x.lineWidth = 2; x.stroke(); }
+  }
+  const t = new THREE.CanvasTexture(c); return t;
+}
+function makeText(str){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64;
+  const x = c.getContext('2d');
+  x.font = 'bold 44px Consolas,monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillStyle = '#101510'; x.fillText(str, 128, 34);
+  const t = new THREE.CanvasTexture(c);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({map:t, transparent:true}));
+  s.scale.set(6, 1.5, 1);
+  return s;
+}
+/* 风偏参考环（无风落点标记）贴图 */
+function ringTexture(){
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d');
+  x.strokeStyle = '#ffffff'; x.lineWidth = 5;
+  x.beginPath(); x.arc(32,32,22,0,7); x.stroke();
+  return new THREE.CanvasTexture(c);
+}
+const RING_TEX = ringTexture();
+/* 弹着点预测标记（琥珀色圆环，10Hz 刷新） */
+const predMark = new THREE.Mesh(new THREE.PlaneGeometry(.6,.6),
+  new THREE.MeshBasicMaterial({map:RING_TEX, color:0xffb454, transparent:true, depthWrite:false}));
+predMark.visible = false;
+scene.add(predMark);
+
+/* ---------------- 风吹烟尘粒子 ---------------- */
+const SMOKE_N = 260;
+const smokePos = new Float32Array(SMOKE_N*3);
+for (let i = 0; i < SMOKE_N; i++){
+  smokePos[i*3]   = (Math.random()-.5)*90;
+  smokePos[i*3+1] = .4 + Math.random()*11;
+  smokePos[i*3+2] = 8 - Math.random()*560;
+}
+const smokeGeo = new THREE.BufferGeometry();
+smokeGeo.setAttribute('position', new THREE.BufferAttribute(smokePos, 3));
+function softDot(){
+  const c = document.createElement('canvas'); c.width = c.height = 32;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(16,16,2,16,16,15);
+  g.addColorStop(0,'rgba(235,235,225,.55)');
+  g.addColorStop(1,'rgba(235,235,225,0)');
+  x.fillStyle = g; x.fillRect(0,0,32,32);
+  return new THREE.CanvasTexture(c);
+}
+const smoke = new THREE.Points(smokeGeo, new THREE.PointsMaterial({
+  size:.9, map:softDot(), transparent:true, opacity:.5,
+  depthWrite:false, sizeAttenuation:true}));
+scene.add(smoke);
+
+/* ---------------- 弹道计算 ---------------- */
+function currentWindAccel(){
+  // 返回 {a: m/s^2 矢量, perTick: 定点单位增量}；补丁关闭 → null
+  if (!ui.on.checked) return null;
+  const base = engMode === 'bhd' ? WIND_BHD : WIND_JO;
+  const K = +ui.k.value;
+  const scale = (+ui.wsp.value/45) / Math.pow(2, K);
+  const a = base * scale;
+  const rad = +ui.wdir.value * Math.PI/180;
+  return {
+    ax: Math.sin(rad)*a, az: -Math.cos(rad)*a,
+    a, perTick: Math.round((engMode==='bhd'?736:197) * scale)
+  };
+}
+/* 表尺（Ctrl+滚轮 0-1000m 步长100）：抬枪角使无风弹道在 zeroDist 与瞄线相交 */
+let zeroDist = 300;
+let mag = 4;                     // 瞄准镜倍率（滚轮 2/4/8/16/24）
+const MAGS = [2, 4, 8, 16, 24];
+const elevNow = () => (zeroDist > 0 && V0 > 0) ? Math.atan(G*zeroDist/(2*V0*V0)) : 0;
+
+function castHit(p, np){
+  // 靶板（面向 +z 的平面）优先，其次地面
+  for (const b of BOARDS){
+    const z = -b.d;
+    if (p.z > z && np.z <= z){
+      const t = (p.z - z)/(p.z - np.z);
+      const x = p.x + (np.x-p.x)*t, y = p.y + (np.y-p.y)*t;
+      if (Math.abs(x - b.x) <= 1.2 && y >= .2 && y <= 2.6)
+        return {point:new THREE.Vector3(x,y,z), board:b.d, normal:new THREE.Vector3(0,0,1)};
+    }
+  }
+  if (np.y <= 0){
+    const t = p.y/(p.y - np.y);
+    return {point:p.clone().lerp(np, Math.min(t,1)), board:0,
+            normal:new THREE.Vector3(0,1,0)};
+  }
+  return null;
+}
+/* 全程积分（60Hz 定步长），返回轨迹点与落点 */
+function simulate(origin, dir, w){
+  const p = origin.clone();
+  const v = dir.clone().multiplyScalar(V0);
+  const pts = [p.clone()];
+  for (let i = 0; i < 900; i++){
+    if (w){ v.x += w.ax*TICK; v.z += w.az*TICK; }   // 每 tick 风力增量（补丁语义）
+    v.y -= G*TICK;                                   // 每 tick 重力增量
+    const np = p.clone().addScaledVector(v, TICK);
+    const hit = castHit(p, np);
+    if (hit){
+      pts.push(hit.point);
+      return {pts, hit, flightT:(i+1)*TICK, vel:v.clone(),
+              latV: w ? lateralSpeed(v,dir) : 0};
+    }
+    p.copy(np); pts.push(p.clone());
+  }
+  return {pts, hit:null, flightT:900*TICK, vel:v.clone(),
+          latV: w ? lateralSpeed(v,dir) : 0};   // 飞出范围也返回轨迹
+}
+function lateralSpeed(v, dir){
+  // 水平面内垂直于射向的速度分量
+  const f = new THREE.Vector3(dir.x,0,dir.z).normalize();
+  const perp = new THREE.Vector3(-f.z,0,f.x);
+  return Math.abs(v.clone().setY(0).dot(perp));
+}
+
+/* ---------------- 射击表现 ---------------- */
+const tracers = [];   // {line, head, t0, dur, pts}
+const holes = [];
+
+function fire(){
+  const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
+  const right = new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+  const dir = fwd.clone().applyAxisAngle(right, elevNow()).normalize();
+  const origin = camera.position.clone().addScaledVector(fwd, .8);   // 从画面中心射出
+  const w = currentWindAccel();
+
+  const real = simulate(origin, dir, w);
+  const ghost = simulate(origin, dir, null);
+
+  drawTracer(real.pts);
+  if (real.hit) placeHole(real.hit, holeTex(), null);
+  if (ghost && ghost.hit) placeHole(ghost.hit, RING_TEX, null);
+  muzzleFlash();
+  playShot();
+
+  /* 战报：相对无风基准分解（未落地则只报飞行信息） */
+  if (!real.hit){
+    const tail = real.pts[real.pts.length-1];
+    ui.sDrift.textContent = '—';
+    ui.sHit.textContent = '未落地（模拟 ' + Math.round(Math.hypot(
+      tail.x-origin.x, tail.z-origin.z)) + ' m 处仍在飞行）';
+    ui.sVert.textContent = '—'; ui.sLong.textContent = '—';
+    ui.sTime.textContent = (real.flightT*1000).toFixed(0) + ' ms';
+    ui.sLatV.textContent = real.latV.toFixed(2) + ' m/s';
+    ui.stats.style.display = 'block';
+    kick = .006;
+    return;
+  }
+  const d = real.hit.point.clone().sub(ghost && ghost.hit ? ghost.hit.point : real.hit.point);
+  const f = new THREE.Vector3(dir.x,0,dir.z).normalize();
+  const perp = new THREE.Vector3(-f.z,0,f.x);
+  const lat = d.dot(perp)*100, lng = d.dot(f)*100, vert = d.y*100;
+  ui.sDrift.textContent = (lat>=0?'+':'') + lat.toFixed(1) + ' cm';
+  ui.sHit.textContent = real.hit.board ? real.hit.board + ' m 靶板' :
+    '地面 ' + Math.hypot(real.hit.point.x, real.hit.point.z).toFixed(0) + ' m';
+  ui.sVert.textContent = (vert>=0?'+':'') + vert.toFixed(1) + ' cm';
+  ui.sLong.textContent = (lng>=0?'+':'') + lng.toFixed(1) + ' cm';
+  ui.sTime.textContent = (real.flightT*1000).toFixed(0) + ' ms';
+  ui.sLatV.textContent = real.latV.toFixed(2) + ' m/s';
+  ui.stats.style.display = 'block';
+
+  kick = .006; // 后座
+}
+function glowTex(){
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(32,32,2,32,32,30);
+  g.addColorStop(0,'rgba(255,255,255,1)');
+  g.addColorStop(.25,'rgba(255,150,110,.9)');
+  g.addColorStop(1,'rgba(255,60,40,0)');
+  x.fillStyle = g; x.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c);
+}
+function drawTracer(pts){
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+    color:0xff4530, transparent:true, opacity:.8}));
+  geo.setDrawRange(0, 2);
+  scene.add(line);
+  const head = new THREE.Sprite(new THREE.SpriteMaterial({
+    map:glowTex(), transparent:true, depthWrite:false}));
+  head.scale.set(2.2, 2.2, 1);
+  scene.add(head);
+  tracers.push({line, head, pts, t0:performance.now(),
+    dur:pts.length*TICK*1000});
+  while (tracers.length > 5){
+    const old = tracers.shift();
+    scene.remove(old.line); scene.remove(old.head);
+    old.line.geometry.dispose();
+    old.head.material.map.dispose(); old.head.material.dispose();
+  }
+}
+function holeTex(){
+  const c = document.createElement('canvas'); c.width = c.height = 32;
+  const x = c.getContext('2d');
+  x.fillStyle = '#e8352a';                       // 纯红弹孔
+  x.beginPath(); x.arc(16,16,10,0,7); x.fill();
+  return new THREE.CanvasTexture(c);
+}
+function placeHole(hit, tex, color){
+  const isGround = hit.board === 0;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(.22,.22),
+    color ? new THREE.MeshBasicMaterial({map:tex, color, transparent:true})
+          : new THREE.MeshBasicMaterial({map:tex, transparent:true}));
+  m.position.copy(hit.point).addScaledVector(hit.normal, .015);
+  m.lookAt(hit.point.clone().add(hit.normal));
+  scene.add(m);
+  holes.push(m);
+  while (holes.length > 30){ scene.remove(holes.shift()); }
+}
+/* 枪口焰 */
+const flash = new THREE.PointLight(0xffc46e, 0, 14);
+scene.add(flash);
+let flashT = 0;
+function muzzleFlash(){ flash.position.copy(camera.position); flash.intensity = 2.6; flashT = 60; }
+
+/* 射击音效（WebAudio 合成） */
+let AC = null;
+function playShot(){
+  try{
+    if (!AC) AC = new (window.AudioContext||window.webkitAudioContext)();
+    const t = AC.currentTime, n = AC.sampleRate*.22;
+    const buf = AC.createBuffer(1, n, AC.sampleRate);
+    const ch = buf.getChannelData(0);
+    for (let i = 0; i < n; i++)
+      ch[i] = (Math.random()*2-1)*Math.pow(1-i/n, 2.6);
+    const src = AC.createBufferSource(); src.buffer = buf;
+    const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400;
+    const g = AC.createGain(); g.gain.setValueAtTime(.5, t);
+    g.gain.exponentialRampToValueAtTime(.01, t+.22);
+    src.connect(lp).connect(g).connect(AC.destination);
+    src.start();
+  }catch(e){}
+}
+
+/* ---------------- UI 绑定 ---------------- */
+const $ = id => document.getElementById(id);
+let engMode = 'jo';   // 引擎风标：jo | bhd（分段按钮）
+const ui = {
+  on:$('on'), k:$('k'), wsp:$('wsp'), wdir:$('wdir'),
+  kTxt:$('kTxt'), wspTxt:$('wspTxt'), wdirTxt:$('wdirTxt'), onTxt:$('onTxt'),
+  v0Txt:$('v0Txt'),
+  effTxt:$('effTxt'), stats:$('stats'),
+  sDrift:$('sDrift'), sHit:$('sHit'), sVert:$('sVert'), sLong:$('sLong'),
+  sTime:$('sTime'), sLatV:$('sLatV'), scopeInfo:$('scopeInfo'),
+  wArrow:$('wArrow'), cWind:$('cWind'), cDir:$('cDir'), cTier:$('cTier'),
+  p100:$('p100'), p300:$('p300'), p500:$('p500'),
+  t100:$('t100'), t300:$('t300'), t500:$('t500'),
+};
+function flashHud(msg){ ui.sHit.textContent = msg; ui.stats.style.display = 'block'; }
+
+/* 罗盘刻度 */
+for (let i = 0; i < 12; i++){
+  const t = document.createElement('div');
+  t.className = 'tick';
+  t.style.transform = 'translateX(-50%) rotate(' + (i*30) + 'deg)';
+  $('dial').appendChild(t);
+}
+
+/* 密位分划（1 点 = 1 密位；固定像素点距，不随倍率缩放） */
+const MIL_PX = 60;
+const milDots = [];
+for (let m = -5; m <= 5; m++){
+  if (!m) continue;
+  const h = document.createElement('div'), v = document.createElement('div');
+  h.className = v.className = 'mdot';
+  $('mildots').appendChild(h); $('mildots').appendChild(v);
+  milDots.push({m, h, v});
+}
+function updMil(){
+  for (const d of milDots){
+    d.h.style.left = (innerWidth/2 + d.m*MIL_PX) + 'px';
+    d.h.style.top = '50%';
+    d.v.style.left = '50%';
+    d.v.style.top = (innerHeight/2 + d.m*MIL_PX) + 'px';
+  }
+}
+updMil();
+
+function recalc(){
+  const K = +ui.k.value;
+  ui.kTxt.textContent = ui.on.checked ? ('K'+K+'  /'+Math.pow(2,K)) : '关闭';
+  ui.wspTxt.textContent = ui.wsp.value + ' kph';
+  ui.wdirTxt.textContent = ui.wdir.value + '°';
+  ui.onTxt.textContent = ui.on.checked ? '已启用' : '已停用';
+  ui.cWind.textContent = ui.wsp.value + ' kph';
+  ui.cDir.textContent = ui.wdir.value + '°';
+  ui.cTier.textContent = ui.on.checked ? 'K'+K : 'OFF';
+  const w = currentWindAccel();
+  if (w){
+    const pct = (w.a/G*100);
+    ui.effTxt.textContent = '风加速度 ' + w.a.toFixed(2) + ' m/s²（' +
+      pct.toFixed(0) + '% g）· 每 tick +' + w.perTick + ' 定点单位';
+  } else {
+    ui.effTxt.textContent = '补丁停用：子弹不受风（原版行为）';
+  }
+  ui.v0Txt.textContent = V0.toFixed(0) + ' m/s';
+  /* 正侧风预测 */
+  const base = engMode === 'bhd' ? WIND_BHD : WIND_JO;
+  const aEff = ui.on.checked ? base*(+ui.wsp.value/45)/Math.pow(2,K) : 0;
+  for (const [d, pid, tid] of [[100,'p100','t100'],[300,'p300','t300'],[500,'p500','t500']]){
+    const t = d/V0;
+    $(pid).textContent = (0.5*aEff*t*t*100).toFixed(1) + ' cm';
+    $(tid).textContent = (t*1000).toFixed(0) + ' ms';
+  }
+}
+/* 引擎风标分段按钮 */
+document.querySelectorAll('#engSeg button').forEach(b =>
+  b.addEventListener('click', () => {
+    engMode = b.dataset.v;
+    document.querySelectorAll('#engSeg button')
+      .forEach(x => x.classList.toggle('active', x === b));
+    recalc();
+  }));
+for (const el of [ui.on, ui.k, ui.wsp, ui.wdir])
+  el.addEventListener('input', recalc);
+/* 武器预设与自定义弹速（最小接受 0） */
+ui.wpn = $('wpn'); ui.v0in = $('v0in');
+ui.wpn.addEventListener('change', () => { ui.v0in.value = ui.wpn.value; recalc(); });
+ui.v0in.addEventListener('input', () => {
+  let v = parseFloat(ui.v0in.value);
+  if (isNaN(v)) v = 0;
+  V0 = Math.max(0, Math.min(3000, v));
+  recalc();
+});
+recalc();
+
+/* ---------------- 指针锁定 / 视角 / 射击 ---------------- */
+let yaw = 0, pitch = 0, kick = 0;
+const hint = $('lockHint');
+hint.addEventListener('click', () => renderer.domElement.requestPointerLock());
+document.addEventListener('pointerlockchange', () => {
+  const locked = document.pointerLockElement === renderer.domElement;
+  document.body.classList.toggle('locked', locked);
+});
+document.addEventListener('mousemove', e => {
+  if (document.pointerLockElement !== renderer.domElement) return;
+  const s = .0022 * (camera.fov/75);
+  yaw   -= e.movementX*s;
+  pitch -= e.movementY*s;
+  pitch = Math.max(-1.45, Math.min(1.45, pitch));
+});
+document.addEventListener('mousedown', e => {
+  if (document.pointerLockElement !== renderer.domElement) return;
+  if (e.button === 0) fire();
+  if (e.button === 2){ document.body.classList.toggle('zoomed'); updScope(); }
+});
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+/* WASD 移动 */
+const keys = {};
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'KeyR'){                       // 清除弹孔
+    while (holes.length) scene.remove(holes.pop());
+  }
+  if (e.code === 'KeyT'){                       // 清除轨迹
+    while (tracers.length){
+      const o = tracers.pop();
+      scene.remove(o.line); scene.remove(o.head);
+      o.line.geometry.dispose();
+      o.head.material.map.dispose(); o.head.material.dispose();
+    }
+  }
+});
+addEventListener('keyup',   e => { keys[e.code] = false; });
+
+/* 滚轮：普通=倍率 2/4/8/16/24，Ctrl=表尺 0-1000m 步长 100 */
+function updScope(){
+  ui.scopeInfo.textContent = mag + 'x · 表尺 ' + zeroDist + ' m';
+}
+addEventListener('wheel', e => {
+  const zoomed = document.body.classList.contains('zoomed');
+  if (e.ctrlKey){
+    e.preventDefault();   // 拦下浏览器缩放
+    zeroDist = Math.max(0, Math.min(1000, zeroDist + (e.deltaY < 0 ? 100 : -100)));
+    updScope();
+  } else if (zoomed){
+    let i = MAGS.indexOf(mag); if (i < 0) i = 1;
+    i = Math.max(0, Math.min(MAGS.length-1, i + (e.deltaY < 0 ? 1 : -1)));
+    mag = MAGS[i];
+    updScope();
+  }
+}, {passive:false});
+
+/* ---------------- 主循环 ---------------- */
+let fovTarget = 75, lastT = performance.now(), lastPred = 0;
+function animate(now){
+  requestAnimationFrame(animate);
+  const dt = Math.min((now-lastT)/1000, .05); lastT = now;
+
+  /* 瞄准镜 FOV（倍率 = 75/fov） */
+  fovTarget = document.body.classList.contains('zoomed') ? 75/mag : 75;
+  camera.fov += (fovTarget-camera.fov)*Math.min(dt*10,1);
+  camera.updateProjectionMatrix();
+
+  /* WASD 移动（全场自由，仅指针锁定时生效）+ 贴合地面/棱台高度 */
+  const mf = (keys.KeyW?1:0) - (keys.KeyS?1:0);
+  const mr = (keys.KeyD?1:0) - (keys.KeyA?1:0);
+  if (document.pointerLockElement === renderer.domElement && (mf || mr)){
+    const s = Math.sin(yaw), c = Math.cos(yaw), sp = 4.5*dt;
+    camera.position.x += (-s*mf + c*mr)*sp;
+    camera.position.z += (-c*mf - s*mr)*sp;   // 全场自由走动，无边界
+  }
+  const gy = heightAt(camera.position.x, camera.position.z) + EYE;
+  camera.position.y += (gy - camera.position.y)*Math.min(1, dt*10);
+
+  /* 弹着点预测标记（指针锁定时按当前准星+风况实时推算，10Hz） */
+  const nowMs = performance.now();
+  const lockedNow = document.pointerLockElement === renderer.domElement;
+  if (lockedNow && nowMs - lastPred > 100){
+    lastPred = nowMs;
+    const pf = new THREE.Vector3(); camera.getWorldDirection(pf);
+    const pr = new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+    const pdir = pf.clone().applyAxisAngle(pr, elevNow()).normalize();
+    const sim = simulate(camera.position.clone().addScaledVector(pf, .8), pdir,
+      currentWindAccel());
+    if (sim && sim.hit){
+      predMark.visible = true;
+      predMark.position.copy(sim.hit.point).addScaledVector(sim.hit.normal, .04);
+      predMark.lookAt(sim.hit.point.clone().add(sim.hit.normal));
+    } else predMark.visible = false;
+  }
+  if (!lockedNow) predMark.visible = false;
+
+  /* 视角 + 后座回落 */
+  kick *= Math.pow(.0018, dt);
+  camera.rotation.set(pitch + kick, yaw, 0);
+
+  /* 风吹烟尘（可视化风速按物理值 ×3 夸张） */
+  const w = currentWindAccel();
+  const kph = +ui.wsp.value;
+  const vis = kph/3.6*3;
+  const rad = +ui.wdir.value*Math.PI/180;
+  const arr = smokeGeo.attributes.position.array;
+  for (let i = 0; i < SMOKE_N; i++){
+    arr[i*3]   += Math.sin(rad)*vis*dt;
+    arr[i*3+2] += -Math.cos(rad)*vis*dt;
+    if (arr[i*3]   >  45) arr[i*3]   -= 90;
+    if (arr[i*3]   < -45) arr[i*3]   += 90;
+    if (arr[i*3+2] >  10) arr[i*3+2] -= 580;
+    if (arr[i*3+2] < -570) arr[i*3+2] += 580;
+  }
+  smokeGeo.attributes.position.needsUpdate = true;
+
+  /* 罗盘箭头（相对准星朝向） */
+  const rel = (+ui.wdir.value - (-yaw*180/Math.PI)) * Math.PI/180;
+  ui.wArrow.style.transform = 'rotate(' + rel + 'rad)';
+
+  /* 曳光推进 */
+  for (const tr of tracers){
+    const f = Math.min((now-tr.t0)/tr.dur, 1);
+    const n = Math.max(2, Math.floor(f*tr.pts.length));
+    tr.line.geometry.setDrawRange(0, n);
+    const p = tr.pts[Math.min(tr.pts.length-1, Math.floor(f*(tr.pts.length-1)))];
+    tr.head.position.copy(p);
+    tr.head.visible = f < 1;
+    if (f >= 1) tr.line.material.opacity = .3;
+  }
+  /* 枪口焰 */
+  if (flashT > 0){ flashT -= dt*1000; if (flashT <= 0) flash.intensity = 0; }
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
