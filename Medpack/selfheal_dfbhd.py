@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Medpack patcher (JointOps / Delta Force: Black Hawk Down, same engine).
+Medpack patcher for Delta Force: Black Hawk Down (DFBHD.exe).
 
 Default mode (self-heal): NOPs the 2-byte "current player == thrower -> skip
 healing" jump at the top of the Medic killzone handler, so a medpack also
 heals the player who threw it.
 
-DFBHD only, --allclasses mode: additionally bypasses the two class gates that
-restrict medpack healing to the Medic class (and break it in single player),
-so ANY class in ANY mode heals:
+--allclasses mode: additionally bypasses the two class gates that restrict
+medpack healing to the Medic class (and break it in single player), so ANY
+class in ANY mode heals:
   - dispatch gate: class-ability lookup 0x418ec0(class byte, 8) at kztype=3
     case; in single player the class table pointer [0x715b48] is NULL so the
     check always fails and the Medic handler is never loaded.
@@ -19,43 +19,39 @@ so ANY class in ANY mode heals:
 All patches are 2-byte edits (NOP or je->jmp): no added code, no size change,
 damage-type killzones (satchel/C4/etc.) are untouched.
 
-Patch points (file_offset = VA - 0x400000 holds for every section in both exes):
-  jointops.exe : 0xE67A8  74 63 -> 90 90   (self-heal)
+Patch points (file_offset = VA - 0x400000 holds for every section):
   DFBHD.exe    : 0x92EF9  74 68 -> 90 90   (self-heal)
                  0x936E0  74 12 -> 90 90   (dispatch class-ability gate)
                  0xAF13D  74 09 -> EB 09   (heal-apply class gate)
                  0xAEEF3  74 09 -> EB 09   (revive class gate)
 
 Usage:
-  python patch_medpack_selfheal.py <original exe> [output path] [--allclasses]
-  Target is auto-detected by file size. The patch is idempotent: gates that
-  are already patched are skipped, so --allclasses can be applied on top of
-  an existing self-heal build.
+  python patch_medpack_selfheal_DFBHD.py <DFBHD.exe> [output path] [--selfheal | --allclasses]
+
+If no mode flag is given, an interactive menu asks which mode to use:
+  1) Self-heal only  (medpack also heals the thrower)
+  2) All classes     (self-heal + any class can use medpacks)
+
+The patch is idempotent: gates that are already patched are skipped, so
+all-classes can be applied on top of an existing self-heal build.
 """
 
 import hashlib
 import os
 import sys
 
-TARGETS = [
-    {
-        "name": "JointOps",
-        "size": 4612096,
-        "orig_md5": "CB19DCAAFEFF25D5518A49EC9AFAD420",
-        "selfheal": [(0xE67A8, b"\x74\x63", b"\x90\x90")],
-        "extra": [],
-    },
-    {
-        "name": "DFBHD (Black Hawk Down)",
-        "size": 2547712,
-        "orig_md5": "D6F51AD03CA62F040586B8B5E3CA8181",
-        "selfheal": [(0x92EF9, b"\x74\x68", b"\x90\x90")],
-        "extra": [
-            (0x936E0, b"\x74\x12", b"\x90\x90"),   # dispatch class-ability gate
-            (0xAF13D, b"\x74\x09", b"\xeb\x09"),   # heal-apply class gate
-            (0xAEEF3, b"\x74\x09", b"\xeb\x09"),   # revive class gate
-        ],
-    },
+TARGET_NAME = "DFBHD (Black Hawk Down)"
+TARGET_SIZE = 2547712
+ORIG_MD5 = "D6F51AD03CA62F040586B8B5E3CA8181"
+
+SELFHEAL_GATES = [
+    (0x92EF9, b"\x74\x68", b"\x90\x90"),   # self-heal gate
+]
+
+EXTRA_GATES = [
+    (0x936E0, b"\x74\x12", b"\x90\x90"),   # dispatch class-ability gate
+    (0xAF13D, b"\x74\x09", b"\xeb\x09"),   # heal-apply class gate
+    (0xAEEF3, b"\x74\x09", b"\xeb\x09"),   # revive class gate
 ]
 
 
@@ -63,9 +59,29 @@ def md5(data: bytes) -> str:
     return hashlib.md5(data).hexdigest().upper()
 
 
+def choose_mode() -> bool:
+    """Interactive mode menu. Returns True for all-classes, False for self-heal."""
+    print("Select patch mode:")
+    print("  1) Self-heal only  (medpack also heals the thrower)")
+    print("  2) All classes     (self-heal + any class can use medpacks)")
+    while True:
+        choice = input("Enter choice [1/2] (press Enter for 1): ").strip()
+        if choice in ("", "1"):
+            return False
+        if choice == "2":
+            return True
+        print("Invalid choice. Please enter 1 or 2.")
+
+
 def main() -> int:
-    args = [a for a in sys.argv[1:] if a != "--allclasses"]
-    allclasses = "--allclasses" in sys.argv[1:]
+    args = [a for a in sys.argv[1:]
+            if a not in ("--allclasses", "--selfheal")]
+    if "--allclasses" in sys.argv[1:]:
+        allclasses = True
+    elif "--selfheal" in sys.argv[1:]:
+        allclasses = False
+    else:
+        allclasses = choose_mode()
     if not args:
         print(__doc__)
         return 1
@@ -74,20 +90,16 @@ def main() -> int:
     data = open(src, "rb").read()
     digest = md5(data)
 
-    target = next((t for t in TARGETS if len(data) == t["size"]), None)
-    if target is None:
-        print("Error: file size matches no known version.")
-        print("Make sure you passed jointops.exe or DFBHD.exe.")
+    if len(data) != TARGET_SIZE:
+        print(f"Error: file size {len(data)} does not match DFBHD.exe "
+              f"({TARGET_SIZE}).")
         return 2
-    if allclasses and not target["extra"]:
-        print(f"Note: {target['name']} has no class gates; --allclasses ignored.")
-        allclasses = False
 
-    if digest != target["orig_md5"]:
+    if digest != ORIG_MD5:
         print(f"Warning: MD5 differs from the known original "
-              f"(expected {target['orig_md5']}, got {digest}).")
+              f"(expected {ORIG_MD5}, got {digest}).")
 
-    gates = target["selfheal"] + (target["extra"] if allclasses else [])
+    gates = SELFHEAL_GATES + (EXTRA_GATES if allclasses else [])
     patched = bytearray(data)
     allowed = set()
     applied = 0
@@ -119,7 +131,7 @@ def main() -> int:
     os.makedirs(os.path.dirname(os.path.abspath(dst)), exist_ok=True)
     open(dst, "wb").write(bytes(patched))
 
-    print(f"Target        : {target['name']}{' + all-classes' if allclasses else ''}")
+    print(f"Target        : {TARGET_NAME}{' + all-classes' if allclasses else ''}")
     print(f"Gates applied : {applied} of {len(gates)}")
     for off, orig, new in gates:
         state = "applied" if bytes(data[off:off + 2]) == orig else "already"
