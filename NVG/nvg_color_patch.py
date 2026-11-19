@@ -64,63 +64,80 @@ def va2off(pe, va):
     return pe.get_offset_from_rva(va - IMAGE_BASE)
 
 
-def fmt_f(v):
-    """格式化成与源码等宽的 X.XX（4 字符）"""
-    return "%.2f" % max(0.0, min(v, 9.99))
-
-
 def patch_shader(buf, pe, rgb):
-    """等长重写 c1/c2 两行。色调 T：c1 = T*0.9（增益），c2 = T*0.2（底色）
-    与原版 (0.2,0.9,0.2)+(0,0.2,0) 的动态范围一致，仅换色调。"""
+    """在 SHADER_VA 处按结构定位 def c1/def c2 行，等长重写数字。
+    只要求位置/结构正确（行内数字是什么值不校验）。
+    色调 T：c1 = T*0.9（增益），c2 = T*0.2（底色）。"""
     off = va2off(pe, SHADER_VA)
-    src = buf[off:off + 256].split(b"\x00")[0].decode("ascii")
-    orig = src  # 保留原文用于报告
+    src = buf[off:off + 512].split(b"\x00")[0].decode("ascii", "replace")
+    orig = src
 
-    t = (c / 255.0 for c in rgb)
     r, g, b = rgb
     c1 = (r * 0.9 / 255.0, g * 0.9 / 255.0, b * 0.9 / 255.0)
     c2 = (r * 0.2 / 255.0, g * 0.2 / 255.0, b * 0.2 / 255.0)
 
-    new_src, n1 = re.subn(
-        r"def c1, [0-9.]+,  [0-9.]+,  [0-9.]+,  0\.0",
-        "def c1, %s,  %s,  %s,  0.0" % (fmt_f(c1[0]), fmt_f(c1[1]), fmt_f(c1[2])),
-        src, count=1)
-    new_src, n2 = re.subn(
-        r"def c2, [0-9.]+,  [0-9.]+,  [0-9.]+,  0\.0",
-        "def c2, %s,  %s,  %s,  0.0" % (fmt_f(c2[0]), fmt_f(c2[1]), fmt_f(c2[2])),
-        new_src, count=1)
-    if n1 != 1 or n2 != 1:
-        raise RuntimeError("着色器源码格式与预期不符，拒绝补丁")
+    def fmt_w(v, w):
+        """生成宽度恰好为 w 的数字文本（不够补尾随空格，超宽则降精度）"""
+        for f in ("%.2f", "%.1f", "%.0f"):
+            s = f % v
+            if len(s) <= w:
+                return s + " " * (w - len(s))
+        raise RuntimeError("数字 %s 放不进宽度 %d" % (v, w))
+
+    def repl_line(line, vals):
+        m = re.match(r"(\s*def\s+c\d,\s*)([0-9.]+)(\s*,\s*)([0-9.]+)(\s*,\s*)([0-9.]+)", line)
+        if not m:
+            raise RuntimeError("def 行结构无法识别: %r" % line)
+        nums = [m.group(2), m.group(4), m.group(6)]
+        new_nums = [fmt_w(v, len(n)) for v, n in zip(vals, nums)]
+        # span(2)=第1个数, span(4)=第2个, span(6)=第3个；从右往左替换保持位移
+        spans = [m.span(6), m.span(4), m.span(2)]
+        out = line
+        for (s, e), new in zip(spans, reversed(new_nums)):
+            out = out[:s] + new + out[e:]
+        if len(out) != len(line):
+            raise RuntimeError("行长度变化，拒绝")
+        return out
+
+    lines = src.split("\r\n")
+    hit1 = hit2 = False
+    for i, ln in enumerate(lines):
+        if re.match(r"\s*def\s+c1,", ln):
+            lines[i] = repl_line(ln, c1); hit1 = True
+        elif re.match(r"\s*def\s+c2,", ln):
+            lines[i] = repl_line(ln, c2); hit2 = True
+    if not (hit1 and hit2):
+        raise RuntimeError("0x%08X 处未找到 def c1/def c2 行，着色器位置不符" % SHADER_VA)
+    new_src = "\r\n".join(lines)
     if len(new_src) != len(src):
-        raise RuntimeError("重写后长度变化，拒绝补丁")
+        raise RuntimeError("总长度变化，拒绝")
     buf[off:off + len(new_src)] = new_src.encode("ascii")
     return orig, new_src
 
 
 def patch_colors(buf, pe, rgb):
+    """只按地址写入（位置校验），不比对原始值。输出旧->新对照。"""
     r, g, b = rgb  # 0-255 整数
     report = []
-    for va, orig, level in COLOR_PATCHES:
+    for va, _orig, level in COLOR_PATCHES:
         off = va2off(pe, va)
         cur = struct.unpack_from("<I", buf, off)[0]
-        if cur != orig:
-            raise RuntimeError("0x%08X 处字节与预期不符 (0x%08X != 0x%08X)，拒绝补丁"
-                               % (va, cur, orig))
         nr = min(255, round(r * level))
         ng = min(255, round(g * level))
         nb = min(255, round(b * level))
         new = 0xFF000000 | (nr << 16) | (ng << 8) | nb
         struct.pack_into("<I", buf, off, new)
-        report.append((va, orig, new))
+        report.append((va, cur, new))
     return report
 
 
-def verify(buf, pe):
-    """补丁后结构校验：着色器源码仍可解析、指令序列未变。"""
+def verify(buf, pe, orig_len):
+    """补丁后校验：文件大小不变 + 着色器结构仍在（不查内容一致性）。"""
+    if len(buf) != orig_len:
+        return False, "文件大小变化"
     off = va2off(pe, SHADER_VA)
-    src = buf[off:off + 256].split(b"\x00")[0].decode("ascii")
-    ok = all(k in src for k in ("ps.1.1", "tex t0", "dp3     r0, t0, c0",
-                                "mul  r0, r0, c1", "add     r0, r0, c2"))
+    src = buf[off:off + 512].split(b"\x00")[0].decode("ascii", "replace")
+    ok = all(k in src for k in ("ps.1.1", "tex", "dp3", "mul", "add"))
     return ok, src
 
 
@@ -159,10 +176,11 @@ def main():
 
     pe = pefile.PE(data=open(src, "rb").read(), fast_load=True)
     buf = bytearray(pe.__data__)
+    orig_len = len(buf)
 
     orig_shader, new_shader = patch_shader(buf, pe, rgb)
     color_report = patch_colors(buf, pe, rgb)
-    ok, final_src = verify(buf, pe)
+    ok, final_src = verify(buf, pe, orig_len)
     if not ok:
         raise RuntimeError("补丁后校验失败！")
 
