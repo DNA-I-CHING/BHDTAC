@@ -137,7 +137,7 @@ Principle (**all edits are same-length in-place replacements** — no offsets/st
 1. **Shader source** (0x64F8D4): only the numeric text of the `def c1` / `def c2` lines is rewritten
    - Mapping: `c1 = RGB × 0.9` (gain), `c2 = RGB × 0.2` (bias) — same dynamic range as stock, hue swapped
 2. **Fallback colors** (6 imm32s): scaled from the custom RGB by the stock brightness levels (0.50 / 0.28 / 1.00); Alpha stays FF
-3. Validation: source MD5 check (`--force` to override) + post-patch shader text re-parse
+3. Safety: no MD5 gate — each patch point is **verified byte-for-byte** (original constant comparison + shader-format regex); any mismatch aborts the patch
 4. Writes a **new file** `DFBHD_NVG_<hex>.exe`; the game directory is never touched — copy the result in yourself
 
 ---

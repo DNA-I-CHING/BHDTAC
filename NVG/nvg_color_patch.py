@@ -18,10 +18,10 @@ BHD 夜视仪自定义颜色补丁
      0xFF30FF30 @ 0x52BEB3
 
 用法：
-  python nvg_color_patch.py <RGB hex> <DFBHD.exe 路径> [选项]
+  python nvg_color_patch.py <RGB hex> <DFBHD.exe 路径>
   例：python nvg_color_patch.py FF5533 DFBHD.exe
-      python nvg_color_patch.py 00C8FF "C:\\Games\\BHD\\DFBHD.exe" --force
-  <DFBHD.exe 路径> 省略时，依次尝试：命令行第 2 参数 → 当前目录 → 脚本所在目录
+      python nvg_color_patch.py 00C8FF "C:\\Games\\BHD\\DFBHD.exe"
+  <DFBHD.exe 路径> 省略时，依次尝试：当前目录 → 脚本所在目录
   下的 DFBHD.exe。脚本只读源文件，输出新文件到脚本所在目录，
   绝不改动游戏目录里的任何文件。
 
@@ -30,13 +30,11 @@ BHD 夜视仪自定义颜色补丁
 """
 import pefile
 import struct
-import hashlib
 import re
 import os
 import sys
 
 # ---- 默认参数 ----
-EXPECT_MD5 = "d6f51ad03ca62f040586b8b5e3ca8181"   # 本报告分析的 DFBHD.exe 版本
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---- 补丁点（VA / image base 0x400000）----
@@ -132,12 +130,11 @@ def find_src(args):
     rest = []
     i = 0
     while i < len(args):
-        if args[i] == "--force":
-            rest.append(args[i]); i += 1
-        elif not explicit and not args[i].startswith("-") and args[i].lower().endswith(".exe"):
-            explicit = args[i]; i += 1
+        if not explicit and not args[i].startswith("-") and args[i].lower().endswith(".exe"):
+            explicit = args[i]
         else:
-            rest.append(args[i]); i += 1
+            rest.append(args[i])
+        i += 1
     if explicit:
         return explicit, rest
     for cand in (os.path.join(os.getcwd(), "DFBHD.exe"),
@@ -154,20 +151,11 @@ def main():
     rgb, hexs = parse_rgb(sys.argv[1])
 
     src, rest = find_src(sys.argv[2:])
-    force = "--force" in rest
     if not src:
         print("未找到 DFBHD.exe。请把源 exe 路径作为第 2 个参数传入，"
               "或把 DFBHD.exe 放在当前目录/脚本目录。")
         return
     print("源文件:", src)
-
-    md5 = hashlib.md5(open(src, "rb").read()).hexdigest()
-    if md5 != EXPECT_MD5 and not force:
-        print("警告: %s 的 md5=%s 与分析版本(%s) 不一致！" % (src, md5, EXPECT_MD5))
-        print("补丁点可能不适用。确认无误后加 --force 继续。")
-        return
-    if md5 == EXPECT_MD5:
-        print("源文件 md5 校验通过:", md5)
 
     pe = pefile.PE(data=open(src, "rb").read(), fast_load=True)
     buf = bytearray(pe.__data__)
