@@ -18,12 +18,15 @@ BHD 夜视仪自定义颜色补丁
      0xFF30FF30 @ 0x52BEB3
 
 用法：
-  python nvg_color_patch.py <RGB hex> [选项]
-  例：python nvg_color_patch.py FF5533
-      python nvg_color_patch.py 00C8FF --src "D:\\其他\\DFBHD.exe"
+  python nvg_color_patch.py <RGB hex> <DFBHD.exe 路径> [选项]
+  例：python nvg_color_patch.py FF5533 DFBHD.exe
+      python nvg_color_patch.py 00C8FF "C:\\Games\\BHD\\DFBHD.exe" --force
+  <DFBHD.exe 路径> 省略时，依次尝试：命令行第 2 参数 → 当前目录 → 脚本所在目录
+  下的 DFBHD.exe。脚本只读源文件，输出新文件到脚本所在目录，
+  绝不改动游戏目录里的任何文件。
 
-注意：输出是【新文件】，绝不改动游戏目录；自行把生成的
-  DFBHD_NVG_<色值>.exe 复制到游戏目录使用。
+注意：输出是【新文件】，自行把生成的 DFBHD_NVG_<色值>.exe
+  复制到游戏目录使用。
 """
 import pefile
 import struct
@@ -33,8 +36,7 @@ import os
 import sys
 
 # ---- 默认参数 ----
-DEFAULT_SRC = r"D:\360Downloads\△\BHD\DFBHD.exe"
-EXPECT_MD5 = "d6f51ad03ca62f040586b8b5e3ca8181"   # 当前 Ghidra 里加载的 DFBHD.exe
+EXPECT_MD5 = "d6f51ad03ca62f040586b8b5e3ca8181"   # 本报告分析的 DFBHD.exe 版本
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---- 补丁点（VA / image base 0x400000）----
@@ -124,23 +126,40 @@ def verify(buf, pe):
     return ok, src
 
 
+def find_src(args):
+    """定位源 exe：第 2 个位置参数 → 当前目录 → 脚本所在目录"""
+    explicit = None
+    rest = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--force":
+            rest.append(args[i]); i += 1
+        elif not explicit and not args[i].startswith("-") and args[i].lower().endswith(".exe"):
+            explicit = args[i]; i += 1
+        else:
+            rest.append(args[i]); i += 1
+    if explicit:
+        return explicit, rest
+    for cand in (os.path.join(os.getcwd(), "DFBHD.exe"),
+                 os.path.join(OUT_DIR, "DFBHD.exe")):
+        if os.path.isfile(cand):
+            return cand, rest
+    return None, rest
+
+
 def main():
     if len(sys.argv) < 2 or sys.argv[1].lower() in ("-h", "--help"):
         print(__doc__)
         return
     rgb, hexs = parse_rgb(sys.argv[1])
 
-    src = DEFAULT_SRC
-    force = False
-    args = sys.argv[2:]
-    i = 0
-    while i < len(args):
-        if args[i] == "--src":
-            src = args[i + 1]; i += 2
-        elif args[i] == "--force":
-            force = True; i += 1
-        else:
-            print("未知参数:", args[i]); return
+    src, rest = find_src(sys.argv[2:])
+    force = "--force" in rest
+    if not src:
+        print("未找到 DFBHD.exe。请把源 exe 路径作为第 2 个参数传入，"
+              "或把 DFBHD.exe 放在当前目录/脚本目录。")
+        return
+    print("源文件:", src)
 
     md5 = hashlib.md5(open(src, "rb").read()).hexdigest()
     if md5 != EXPECT_MD5 and not force:

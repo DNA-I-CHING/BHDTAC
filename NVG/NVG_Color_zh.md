@@ -126,9 +126,11 @@ D3D 设备创建后一次性执行，共编译 **4 段 ps.1.1 着色器**（`FUN
 脚本：`nvg_color_patch.py`（与仓库内报告配套分发）
 
 ```bash
-python nvg_color_patch.py FF5533     # 橙红夜视仪
-python nvg_color_patch.py 00C8FF     # 青蓝夜视仪
+python nvg_color_patch.py FF5533 DFBHD.exe      # 橙红夜视仪
+python nvg_color_patch.py 00C8FF "C:\\Games\\BHD\\DFBHD.exe"   # 青蓝夜视仪
 ```
+
+源 exe 路径作为第 2 个参数传入（省略时依次尝试：当前目录 → 脚本目录下的 `DFBHD.exe`）。脚本只读源文件。
 
 原理（**全部等长原地替换**，不动任何偏移/结构）：
 

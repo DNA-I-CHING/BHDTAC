@@ -126,9 +126,11 @@ If the device lacks PS support or the D3D level is insufficient, `DAT_00E049B0` 
 Script: `nvg_color_patch.py` (distributed alongside this report)
 
 ```bash
-python nvg_color_patch.py FF5533     # orange-red NVG
-python nvg_color_patch.py 00C8FF     # cyan-blue NVG
+python nvg_color_patch.py FF5533 DFBHD.exe      # orange-red NVG
+python nvg_color_patch.py 00C8FF "C:\\Games\\BHD\\DFBHD.exe"   # cyan-blue NVG
 ```
+
+Pass the source exe path as the 2nd argument (if omitted, the script looks for `DFBHD.exe` in the current directory, then the script directory). The script only reads the source file.
 
 Principle (**all edits are same-length in-place replacements** — no offsets/structures touched):
 
